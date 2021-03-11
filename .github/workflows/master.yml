@@ -1,0 +1,13 @@
+name: java-agent
+
+on:
+  push:
+    branches: [ 'master']
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: build
+      run: ./gradlew shadowJar

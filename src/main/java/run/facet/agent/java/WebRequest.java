@@ -1,4 +1,4 @@
-package main.java.agent;
+package run.facet.agent.java;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;

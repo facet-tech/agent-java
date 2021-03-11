@@ -1,4 +1,4 @@
-package main.java.agent;
+package run.facet.agent.java;
 
 public class AgentBiz {
     private App app = WebRequest.createApp(new App("WORKSPACE~N2IzODAyNzQtZGY5OC00OTE4LWEwM2UtZGVjYmRmZTkyMTA4","BackedTestPoc","dev"));

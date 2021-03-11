@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
+
+version = '0.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.2'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.2'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.12.2'
+    implementation group: 'org.javassist', name: 'javassist', version: '3.27.0-GA'
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_9
+targetCompatibility = JavaVersion.VERSION_1_9
+
+def shadePackagePrefix = 'run.facet.dependencies.shaded.'
+def shadePackageSuffix = '%regex[run.facet.*]'
+shadowJar {
+    archiveClassifier.set('')
+    project.configurations.implementation.canBeResolved(true);
+    manifest {
+        attributes 'Premain-Class': 'run.facet.agent.java.Agent',
+                   'Can-Redefine-Classes': true,
+                   'Can-Retransform-Classes': true
+    }
+    relocate ('com.fasterxml', "${shadePackagePrefix}com.fasterxml") {}
+    relocate ('javassist', "${shadePackagePrefix}javassist") {}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

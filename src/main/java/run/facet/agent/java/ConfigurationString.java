@@ -1,12 +1,10 @@
-package main.java.agent;
+package run.facet.agent.java;
 
 
-import java.util.Map;
-
-public class Configuration {
+public class ConfigurationString {
     String property;
     String id ;
-    Map<String,Object> attribute;
+    String attribute;
 
 
     public String getProperty() {
@@ -25,11 +23,11 @@ public class Configuration {
         this.id = id;
     }
 
-    public Map<String, Object> getAttribute() {
+    public String getAttribute() {
         return attribute;
     }
 
-    public void setAttribute(Map<String, Object> attribute) {
+    public void setAttribute(String attribute) {
         this.attribute = attribute;
     }
 }

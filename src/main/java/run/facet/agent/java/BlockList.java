@@ -1,4 +1,4 @@
-package main.java.agent;
+package run.facet.agent.java;
 
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;

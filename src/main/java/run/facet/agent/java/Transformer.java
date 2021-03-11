@@ -1,4 +1,4 @@
-package main.java.agent;
+package run.facet.agent.java;
 
 import javassist.*;
 import javassist.bytecode.annotation.Annotation;
@@ -86,7 +86,7 @@ public class Transformer implements ClassFileTransformer {
                     } else {
                         breaker = agentBiz.getCircuitBreaker().getBreaker(signature.getReturnType());
                     }
-                    String toggleLogic = breaker.getCircuitBreaker().replace("${toggle}", "main.java.agent.Toggle.isEnabled(\"" + agentBiz.getToggle().getToggleName(facet.getFullyQualifiedName(), signature.getSignature()) + "\")");
+                    String toggleLogic = breaker.getCircuitBreaker().replace("${toggle}", "run.facet.agent.java.Toggle.isEnabled(\"" + agentBiz.getToggle().getToggleName(facet.getFullyQualifiedName(), signature.getSignature()) + "\")");
                     for (Map.Entry<String, String> entry : breaker.getParameterMapping().entrySet()) {
                         toggleLogic = toggleLogic.replace("${" + entry.getKey() + "}", "$" + signature.getParameterByReturnType(entry.getValue()).getPosition());
                     }
@@ -111,14 +111,14 @@ public class Transformer implements ClassFileTransformer {
         }
     }
 
-    public List<main.java.agent.Annotation> parseAnnotations(Object[] objectList) {
-        List<main.java.agent.Annotation> annotations = new ArrayList<>();
+    public List<run.facet.agent.java.Annotation> parseAnnotations(Object[] objectList) {
+        List<run.facet.agent.java.Annotation> annotations = new ArrayList<>();
         for (Object object : objectList) {
             if (object instanceof Proxy) {
                 InvocationHandler invocationHandler = Proxy.getInvocationHandler((Proxy) object);
                 if (invocationHandler instanceof AnnotationImpl) {
                     Annotation annotation = ((AnnotationImpl) invocationHandler).getAnnotation();
-                    main.java.agent.Annotation facetAnnotation = new main.java.agent.Annotation();
+                    run.facet.agent.java.Annotation facetAnnotation = new run.facet.agent.java.Annotation();
                     facetAnnotation.setName(annotation.getTypeName());
                     Set<String> parameters = annotation.getMemberNames();
                     if (parameters != null) {

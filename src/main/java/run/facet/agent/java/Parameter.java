@@ -1,4 +1,4 @@
-package main.java.agent;
+package run.facet.agent.java;
 
 public class Parameter {
     private String name;
