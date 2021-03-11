@@ -12,5 +12,17 @@ jobs:
     - name: checkout
       uses: actions/checkout@v2
 
+    - name: gradle cache
+      uses: actions/cache@v2
+      env:
+        cache-name: gradle
+      with:
+        path: .gradle
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/build.gradle', '**/settings.gradle', './gradlew', '**/gradle/wrapper/*') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}
+
     - name: build
       run: ./gradlew shadowJar
