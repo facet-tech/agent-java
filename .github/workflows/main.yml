@@ -17,7 +17,7 @@ jobs:
       env:
         cache-name: gradle
       with:
-        path: .gradle
+        path: $HOME/.gradle
         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/build.gradle', '**/settings.gradle', './gradlew', '**/gradle/wrapper/*') }}
         restore-keys: |
           ${{ runner.os }}-build-${{ env.cache-name }}-
@@ -25,4 +25,4 @@ jobs:
           ${{ runner.os }}
 
     - name: build
-      run: pwd && ls -la && ./gradlew shadowJar && pwd && ls -la
+      run: ./gradlew shadowJar
