@@ -9,5 +9,8 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+    - name: checkout
+      uses: actions/checkout@v2
+
     - name: build
-      run: pwd && ls -la && ./gradlew shadowJar
+      run: ./gradlew shadowJar
