@@ -32,4 +32,4 @@ shadowJar {
     relocate ('com.fasterxml', "${shadePackagePrefix}com.fasterxml") {}
     relocate ('javassist', "${shadePackagePrefix}javassist") {}
 }
-
+//cicd test
