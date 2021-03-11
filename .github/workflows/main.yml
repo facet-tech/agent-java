@@ -15,21 +15,18 @@ jobs:
     - uses: burrunan/gradle-cache-action@v1
       name: build
       with:
-        save-generated-gradle-jars: false
-        remote-build-cache-proxy-enabled: false
+        save-generated-gradle-jars: true
+        remote-build-cache-proxy-enabled: true
         gradle-version: 6.7.1
         read-only: ${{ github.ref != 'refs/heads/main' }}
         arguments: shadowJar
         execution-only-caches: true
         save-local-build-cache: false
-        save-gradle-dependencies-cache: false
+        save-gradle-dependencies-cache: true
         gradle-dependencies-cache-key: |
           gradle/dependencies.kt
           buildSrc/**/Version.kt
         save-maven-dependencies-cache: false
-        maven-local-ignore-paths: |
-          org/example/
-          com/example/
         concurrent: true
         gradle-build-scan-report: false
         gradle-distribution-sha-256-sum-warning: false
