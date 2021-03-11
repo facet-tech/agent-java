@@ -18,6 +18,3 @@ jobs:
         gradle-version: 6.7.1
         arguments: shadowJar
         concurrent: true
-
-    - name: ssh
-      uses: mxschmitt/action-tmate@v3
