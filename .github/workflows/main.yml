@@ -25,4 +25,4 @@ jobs:
           ${{ runner.os }}
 
     - name: build
-      run: ls -la $HOME/.gradle &&./gradlew shadowJar && ls -la $HOME/.gradle
+      run: ls -la $HOME && ./gradlew shadowJar && ls -la $HOME/.gradle
