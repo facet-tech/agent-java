@@ -20,7 +20,6 @@ jobs:
         gradle-version: 6.7.1
         read-only: ${{ github.ref != 'refs/heads/main' }}
         arguments: shadowJar
-        build-root-directory: build
         execution-only-caches: true
         save-local-build-cache: false
         save-gradle-dependencies-cache: false
