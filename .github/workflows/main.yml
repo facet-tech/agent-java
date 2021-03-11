@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: build
-      run: ./gradlew shadowJar
+      run: pwd && ls -la && ./gradlew shadowJar
