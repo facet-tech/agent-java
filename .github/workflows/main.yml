@@ -23,3 +23,6 @@ jobs:
         gradle-version: 6.7.1
         arguments: build signArchives publishToSonatype closeAndReleaseStagingRepository
         concurrent: true
+        save-generated-gradle-jars: false
+        save-local-build-cache: false
+        save-gradle-dependencies-cache: false
