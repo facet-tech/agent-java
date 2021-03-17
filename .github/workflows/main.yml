@@ -14,13 +14,13 @@ jobs:
 
     - uses: burrunan/gradle-cache-action@v1
       name: build
-      job-id: gradleCache
       env:
         ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.MAVEN_SIGNING_KEY_ID }}
         ORG_GRADLE_PROJECT_signingKey: ${{ secrets.MAVEN_SIGNING_KEY }}
         ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
         ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
       with:
+        job-id: gradleCache
         gradle-version: 6.7.1
         arguments: build signArchives publishToSonatype closeAndReleaseStagingRepository
         concurrent: true
