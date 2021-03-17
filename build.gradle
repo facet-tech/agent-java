@@ -1,13 +1,18 @@
 plugins {
     id 'java'
+    id 'maven'
+    id 'maven-publish'
+    id 'signing'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'io.github.gradle-nexus.publish-plugin' version '1.0.0'
 }
 
-version = '0.0.1'
+group = "run.facet.agent.java"
+archivesBaseName = "facet-agent"
+version = '0.0.2-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-}
+sourceCompatibility = JavaVersion.VERSION_1_9
+targetCompatibility = JavaVersion.VERSION_1_9
 
 dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.2'
@@ -16,20 +21,111 @@ dependencies {
     implementation group: 'org.javassist', name: 'javassist', version: '3.27.0-GA'
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_9
-targetCompatibility = JavaVersion.VERSION_1_9
+repositories {
+    mavenCentral()
+}
 
-def shadePackagePrefix = 'run.facet.dependencies.shaded.'
-def shadePackageSuffix = '%regex[run.facet.*]'
+def shadePackagePrefix = 'run.facet.dependencies.'
 shadowJar {
     archiveClassifier.set('')
     project.configurations.implementation.canBeResolved(true);
     manifest {
         attributes 'Premain-Class': 'run.facet.agent.java.Agent',
                    'Can-Redefine-Classes': true,
-                   'Can-Retransform-Classes': true
+                    'Can-Retransform-Classes': true
     }
-    relocate ('com.fasterxml', "${shadePackagePrefix}com.fasterxml") {}
-    relocate ('javassist', "${shadePackagePrefix}javassist") {}
+    relocate('com.fasterxml', "${shadePackagePrefix}com.fasterxml") {}
+    relocate('javassist', "${shadePackagePrefix}javassist") {}
 }
-//cicd test
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+artifacts {
+    archives shadowJar, javadocJar, sourcesJar
+}
+
+signing {
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign configurations.archives
+}
+
+tasks.withType(GenerateModuleMetadata) {
+    enabled = false
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from(components.java)
+            pom {
+                name = archivesBaseName
+                packaging = 'jar'
+                description = 'Facet java agent.'
+                url = 'https://github.com/facet-tech/agent-java'
+
+                scm {
+                    connection = 'scm:git:https://github.com/facet-tech/agent-java'
+                    developerConnection = 'scm:git:https://github.com/facet-tech/agent-java'
+                    url = 'scm:git:https://github.com/facet-tech/agent-java'
+                }
+
+                licenses {
+                    license {
+                        name = 'The MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'pinsonaw'
+                        name = 'Andy Pinson'
+                        email = 'andrew.w.pinson@gmail.com'
+                    }
+                }
+                pom.withXml {
+                    Node pomNode = asNode()
+                    pomNode.remove(pomNode.get("dependencies"))
+                }
+            }
+            pom.withXml {
+                def pomFile = file("${project.buildDir}/pom.xml")
+                writeTo(pomFile)
+                def pomAscFile = signing.sign(pomFile).signatureFiles[0]
+                artifact(pomAscFile) {
+                    classifier = null
+                    extension = 'pom.asc'
+                }
+            }
+
+            project.tasks.signArchives.signatureFiles.each {
+                artifact(it) {
+                    def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
+                    if (matcher.find()) {
+                        classifier = matcher.group(1)
+                    } else {
+                        classifier = null
+                    }
+                    extension = 'jar.asc'
+                }
+            }
+        }
+    }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+            username = "engineering@facet.run"
+            password = findProperty("sonatypePassword")
+        }
+    }
+}
