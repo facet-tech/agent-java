@@ -5,7 +5,7 @@ public class AgentBiz {
     private CircuitBreaker circuitBreaker;
     private BlockList blockList;
     private Toggle toggle;
-    private Facets facets;/
+    private Facets facets;
     private Frameworks frameworks;
     private static AgentBiz singleton;
     private Properties properties;
