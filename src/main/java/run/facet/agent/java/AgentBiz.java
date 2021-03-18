@@ -1,22 +1,31 @@
 package run.facet.agent.java;
 
 public class AgentBiz {
-    private App app = WebRequest.createApp(new App("WORKSPACE~N2IzODAyNzQtZGY5OC00OTE4LWEwM2UtZGVjYmRmZTkyMTA4","BackedTestPoc","dev"));
-    private CircuitBreaker circuitBreaker = CircuitBreaker.getCircuitBreakerList();
-    private BlockList blockList = BlockList.getBlockList();
-    private Toggle toggle = Toggle.getToggle();
-    private Facets facets = new Facets(app);
-    private Frameworks frameworks = Frameworks.getFrameworks();
+    private App app;
+    private CircuitBreaker circuitBreaker;
+    private BlockList blockList;
+    private Toggle toggle;
+    private Facets facets;/
+    private Frameworks frameworks;
     private static AgentBiz singleton;
+    private Properties properties;
 
-    public static AgentBiz getAgentBiz() {
+    public static AgentBiz getAgentBiz() throws Exception {
         if(singleton == null) {
             singleton = new AgentBiz();
         }
         return singleton;
     }
 
-    private AgentBiz() {}
+    private AgentBiz() throws Exception {
+        properties = new Properties();
+        app = WebRequest.createApp((App) properties.getProperty(App.class));
+        circuitBreaker = CircuitBreaker.getCircuitBreakerList();
+        blockList = BlockList.getBlockList();
+        toggle = Toggle.getToggle();
+        facets = new Facets(app);
+        frameworks = Frameworks.getFrameworks();
+    }
 
     public  App getApp() {
         return app;
