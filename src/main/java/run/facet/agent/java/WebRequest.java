@@ -40,7 +40,7 @@ public class WebRequest {
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:3000/facet/backend?appId=" + app.getName()))
+                    .uri(new URI("https://api.facet.run/facet/backend?appId=" + app.getName()))
                     .version(HttpClient.Version.HTTP_1_1)
                     .GET()
                     .timeout(Duration.ofMillis(10000))
@@ -66,7 +66,7 @@ public class WebRequest {
             String json = ow.writeValueAsString(app);
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:3000/app"))
+                    .uri(new URI("https://api.facet.run/app"))
                     .version(HttpClient.Version.HTTP_1_1)
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .timeout(Duration.ofMillis(10000))
@@ -93,7 +93,7 @@ public class WebRequest {
                     .executor(threadPool)
                     .build();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:3000/facet/backend"))
+                    .uri(new URI("https://api.facet.run/facet/backend"))
                     .version(HttpClient.Version.HTTP_1_1)
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .timeout(Duration.ofMillis(10000))
@@ -113,7 +113,7 @@ public class WebRequest {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:3000/facet/configuration?property=" + property + "&id=" + id))
+                    .uri(new URI("https://api.facet.run/facet/configuration?property=" + property + "&id=" + id))
                     .version(HttpClient.Version.HTTP_1_1)
                     .GET()
                     .timeout(Duration.ofMillis(10000))
@@ -135,7 +135,7 @@ public class WebRequest {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:3000/facet/configurations?property=" + property + "&id=" + id))
+                    .uri(new URI("https://api.facet.run/facet/configurations?property=" + property + "&id=" + id))
                     .version(HttpClient.Version.HTTP_1_1)
                     .GET()
                     .timeout(Duration.ofMillis(10000))
