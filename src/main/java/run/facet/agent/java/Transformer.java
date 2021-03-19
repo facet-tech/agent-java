@@ -33,11 +33,10 @@ public class Transformer implements ClassFileTransformer {
             try {
                 System.out.println(className);
                 ClassPool classPool = ClassPool.getDefault();
-
                 CtClass cf = null;
                 classPool.appendSystemPath();
                 cf = classPool.get(className.replace("/", "."));
-                Facet facet = createFacet(className, cf);
+                Facet facet = createFacet(cf, classPool);
                 classfileBuffer = cf.toBytecode();
                 cf.detach();
                 return instrument(classfileBuffer, loader);
@@ -52,7 +51,7 @@ public class Transformer implements ClassFileTransformer {
         }
     }
 
-    public Facet createFacet(String className, CtClass cf) {
+    public Facet createFacet(CtClass cf, ClassPool classPool) {
         Facet facet = null;
         try {
             facet = new Facet(agentBiz.getApp().getName(), cf.getName(), cf.isInterface() ? "interface" : "class", "0.0.1", new Language("java", System.getProperty("java.version")));
@@ -88,7 +87,13 @@ public class Transformer implements ClassFileTransformer {
                     }
                     String toggleLogic = breaker.getCircuitBreaker().replace("${toggle}", "run.facet.agent.java.Toggle.isEnabled(\"" + agentBiz.getToggle().getToggleName(facet.getFullyQualifiedName(), signature.getSignature()) + "\")");
                     for (Map.Entry<String, String> entry : breaker.getParameterMapping().entrySet()) {
-                        toggleLogic = toggleLogic.replace("${" + entry.getKey() + "}", "$" + signature.getParameterByReturnType(entry.getValue()).getPosition());
+                        if(signature.getParameterByReturnType(entry.getValue()) == null) {
+                            method.insertParameter(classPool.get(entry.getValue()));
+                            toggleLogic = toggleLogic.replace("${" + entry.getKey() + "}", "$1");
+                        } else {
+                            toggleLogic = toggleLogic.replace("${" + entry.getKey() + "}", "$" + signature.getParameterByReturnType(entry.getValue()).getPosition());
+                        }
+
                     }
                     System.out.println(toggleLogic);
                     method.insertBefore(toggleLogic);
