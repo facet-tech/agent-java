@@ -1,22 +1,18 @@
 package run.facet.agent.java;
 
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class Toggle {
     private static Map<String,Boolean> toggle;
-    private static Toggle singleton = null;
 
     private Toggle () {
         toggle = new HashMap<>();
     }
 
-    public static Toggle getToggle() {
-        if(singleton == null) {
-            singleton = new Toggle();
-        }
-        return singleton;
-    }
 
     public static boolean isEnabled(String name) {
         if(!toggle.containsKey(name)) {

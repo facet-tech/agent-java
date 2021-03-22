@@ -9,24 +9,29 @@ plugins {
 
 group = "run.facet.agent.java"
 archivesBaseName = "facet-agent"
-version = '0.0.6'
+version = 'master-SNAPSHOT'
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
+def springVersion = '5.3.5'
+def jacksonVersion = '2.12.2'
+
 dependencies {
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.2'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.2'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.12.2'
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.12.2'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jacksonVersion
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jacksonVersion
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonVersion
     implementation group: 'org.javassist', name: 'javassist', version: '3.27.0-GA'
+    implementation group: 'org.springframework', name: 'spring-context', version: springVersion
+    implementation group: 'org.springframework', name: 'spring-core', version: springVersion
 }
 
 repositories {
     mavenCentral()
 }
 
-def shadePackagePrefix = 'run.facet.dependencies.'
+def shadedPackagePrefix = 'run.facet.dependencies.'
 shadowJar {
     archiveClassifier.set('')
     project.configurations.implementation.canBeResolved(true);
@@ -35,8 +40,9 @@ shadowJar {
                    'Can-Redefine-Classes': true,
                     'Can-Retransform-Classes': true
     }
-    relocate('com.fasterxml', "${shadePackagePrefix}com.fasterxml") {}
-    relocate('javassist', "${shadePackagePrefix}javassist") {}
+    ["com.fasterxml", "javassist", "org.springframework"].each {
+        relocate(it, "$shadedPackagePrefix$it")
+    }
 }
 
 java {

@@ -1,35 +1,34 @@
 package run.facet.agent.java;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+@Component
 public class CircuitBreaker {
     private String id = "JAVA~";
     private String property = "CIRCUIT_BREAKER~";
     private static Map<String,Breaker> circuitBreakerMap;
 
     private Timer timer;
-    private static CircuitBreaker singleton = null;
     private int cacheRefreshInterval = 30000;
 
     private ReadWriteLock lock = new ReentrantReadWriteLock();
+    private WebRequest webRequest;
 
-    private CircuitBreaker() {
+    @Autowired
+    private CircuitBreaker(WebRequest webRequest) {
+        this.webRequest = webRequest;
         fetchCircuitBreakerList();
         timer = new Timer();
         timer.schedule(new CircuitBreakerTimer(), cacheRefreshInterval,cacheRefreshInterval);
     }
 
-    public static CircuitBreaker getCircuitBreakerList() {
-        if(singleton == null) {
-            singleton = new CircuitBreaker();
-        }
-        return singleton;
-    }
-
     private void fetchCircuitBreakerList() {
-        Configuration configuration = WebRequest.fetchConfiguration(this.property,this.id);
+        Configuration configuration = webRequest.fetchConfiguration(this.property,this.id);
         Map<String,Breaker> newCircuitBreakerMap = convertConfigurationToCircuitBreakerList(configuration);
         lock.writeLock().lock();
         try {

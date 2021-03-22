@@ -1,5 +1,11 @@
 package run.facet.agent.java;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+
+@Component
 public class App {
     private Object attribute;
     private String name;
@@ -7,10 +13,13 @@ public class App {
     private String environment;
     private String workspaceId;
 
-    public App(String workspaceId, String name, String environment) {
-        this.name = name;
-        this.environment = environment;
-        this.workspaceId = workspaceId;
+    @Autowired
+    public App(WebRequest webRequest, Properties properties) throws IOException {
+        App app = webRequest.createApp((App) properties.getProperty(App.class));
+        this.name = app.name;
+        this.id = app.id;
+        this.environment = app.environment;
+        this.workspaceId = app.workspaceId;
     }
 
     public App(){}

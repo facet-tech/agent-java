@@ -1,9 +1,13 @@
 package run.facet.agent.java;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+@Component
 public class BlockList {
     private String id = "JAVA_PACKAGE_PREFIX~";
     private String property = "BLOCK_LIST~";
@@ -15,26 +19,21 @@ public class BlockList {
     }};
 
     private Timer timer;
-    private static BlockList singleton = null;
     private int blockListRefreshIntervalInSeconds = 30000;
 
     private ReadWriteLock lock = new ReentrantReadWriteLock();
+    private WebRequest webRequest;
 
-    private BlockList() {
+    @Autowired
+    private BlockList(WebRequest webRequest) {
+        this.webRequest = webRequest;
         fetchBlockList();
         timer = new Timer(true);
         timer.schedule(new BlockListTimer(), blockListRefreshIntervalInSeconds,blockListRefreshIntervalInSeconds);
     }
 
-    public static BlockList getBlockList() {
-        if(singleton == null) {
-            singleton = new BlockList();
-        }
-        return singleton;
-    }
-
     private void fetchBlockList() {
-        Configuration configuration = WebRequest.fetchConfiguration(this.property,this.id);
+        Configuration configuration = webRequest.fetchConfiguration(this.property,this.id);
         Map<String,String> newBlockList = convertConfigurationToBlockList(configuration);
         lock.writeLock().lock();
         try {

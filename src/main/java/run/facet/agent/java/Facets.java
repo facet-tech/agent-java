@@ -1,9 +1,13 @@
 package run.facet.agent.java;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+@Component
 public class Facets {
     private List<Facet> facets;
     private Map<String, Facet> facetMap;
@@ -11,18 +15,24 @@ public class Facets {
     private Timer timer;
     private int refreshInterval = 10000;
     private ReadWriteLock lock = new ReentrantReadWriteLock();
-    private Toggle toggle = Toggle.getToggle();
 
-    public Facets(App app) {
+    private Toggle toggle;
+    private WebRequest webRequest;
+
+    //TODO fix race condition where facets could be overwritten by the timer during parsing and vice versa.
+    @Autowired
+    public Facets(App app, WebRequest webRequest, Toggle toggle) {
+        this.webRequest = webRequest;
         this.app = app;
         this.facetMap = new HashMap<>();
+        this.toggle = toggle;
         fetchFacets();
         timer = new Timer(true);
         timer.schedule(new FacetTimer(), refreshInterval,refreshInterval);
     }
 
     private void fetchFacets() {
-        List<Facet> facets = WebRequest.fetchFacet(app);
+        List<Facet> facets = webRequest.fetchFacet(app);
         lock.writeLock().lock();
         try {
             for (Facet facet : facets) {
@@ -47,7 +57,7 @@ public class Facets {
             if (!contains(facet)) {
                 this.facets.add(facet);
                 updateFacetMaps(facet);
-                WebRequest.createFacet(facet);
+                webRequest.createFacet(facet);
             }
         } finally {
             lock.writeLock().unlock();

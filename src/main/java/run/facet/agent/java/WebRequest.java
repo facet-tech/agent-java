@@ -2,8 +2,10 @@ package run.facet.agent.java;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import org.springframework.stereotype.Component;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -13,6 +15,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.*;
 
+@Component
 public class WebRequest {
     private static ExecutorService threadPool = Executors.newFixedThreadPool(20,new MyThreadFactory());
 
@@ -34,7 +37,7 @@ public class WebRequest {
         }));
     }
 
-    public static List<Facet> fetchFacet(App app) {
+    public List<Facet> fetchFacet(App app) {
         List<Facet> facetList = null;
         try {
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -59,7 +62,7 @@ public class WebRequest {
 
     }
 
-    public static App createApp(App app) {
+    public App createApp(App app) {
         App createdApp = null;
         try {
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -84,11 +87,10 @@ public class WebRequest {
         }
     }
 
-    public static void createFacet(Facet facetDTO) {
+    public void createFacet(Facet facetDTO) {
         try {
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
             String json = ow.writeValueAsString(facetDTO);
-            //HttpClient client = HttpClient.newHttpClient();
             HttpClient client = HttpClient.newBuilder()
                     .executor(threadPool)
                     .build();
@@ -108,7 +110,7 @@ public class WebRequest {
         }
     }
 
-    public static Configuration fetchConfiguration(String property, String id) {
+    public Configuration fetchConfiguration(String property, String id) {
         Configuration configuration = null;
         try {
             HttpClient client = HttpClient.newHttpClient();
@@ -130,7 +132,31 @@ public class WebRequest {
         return configuration;
     }
 
-    public static  List<Configuration> fetchConfigurations(String property, String id) {
+    public Object fetchConfiguration(String property, String id, String field, Class clazz) {
+        Object object = null;
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("https://api.facet.run/facet/configuration?property=" + property + "&id=" + id))
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .GET()
+                    .timeout(Duration.ofMillis(10000))
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            ObjectMapper objectMapper = new ObjectMapper();
+            String responseBody = response.body();
+            JsonNode productNode = new ObjectMapper().readTree(responseBody);
+            object = objectMapper.readValue(productNode.get(field).toString(), clazz);
+        } catch (Exception e) {
+            System.out.println(e);
+        } catch (Throwable e) {
+            System.out.println(e);
+            e.printStackTrace();
+        }
+        return object;
+    }
+
+    public List<Configuration> fetchConfigurations(String property, String id) {
         List<Configuration> configurations = null;
         try {
             HttpClient client = HttpClient.newHttpClient();
@@ -151,6 +177,7 @@ public class WebRequest {
         }
         return configurations;
     }
+
 
      private static class MyThreadFactory implements ThreadFactory {
         @Override

@@ -1,7 +1,11 @@
 package run.facet.agent.java;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.*;
 
+@Component
 public class Frameworks {
     private String id = "JAVA~1";
     private String property = "FRAMEWORK~";
@@ -9,23 +13,18 @@ public class Frameworks {
     private Map<String, Framework> frameworkAnnotationMap;
     private Map<String, Framework> frameworkSignatureMap;
     private Map<String, Framework> frameworkInterfaceSignatureMap;
-    private static Frameworks singleton = null;
 
+    private WebRequest webRequest;
 
-    private Frameworks() {
+    @Autowired
+    private Frameworks(WebRequest webRequest) {
+        this.webRequest = webRequest;
         fetchFrameworks();
     }
 
-    public static Frameworks getFrameworks() {
-        if (singleton == null) {
-            singleton = new Frameworks();
-        }
-        return singleton;
-    }
-
     private void fetchFrameworks() {
-        Configuration configuration = WebRequest.fetchConfiguration(this.property, this.id);
-        Map<String, Framework> frameworks = convertConfigurationToFrameworkList(new ArrayList<Configuration>(){{add(configuration);}});
+        Framework framework = (Framework) webRequest.fetchConfiguration(this.property, this.id,"attribute", Framework.class);
+        Map<String, Framework> frameworks = new HashMap<>(){{put(framework.getName(),framework);}};
         Map<String, Framework> frameworkAnnotationMap = new HashMap<>();
         Map<String, Framework> frameworkSignatureMap = new HashMap<>();
         Map<String, Framework> frameworkInterfaceSignatureMap = new HashMap<>();
@@ -35,45 +34,7 @@ public class Frameworks {
         this.frameworkSignatureMap = frameworkSignatureMap;
         this.frameworkInterfaceSignatureMap = frameworkInterfaceSignatureMap;
     }
-    public Map<String, Framework> convertConfigurationToFrameworkList(List<Configuration> configurations) {
-        Map<String, Framework> frameworks = new HashMap<>();
-        Map<String, Object> configurationAttribute;
-        List<Annotation> annotations = null;
-        for (Configuration configuration : configurations) {
-            Framework framework = new Framework();
-            configurationAttribute = configuration.getAttribute();
-            framework.setName((String) configurationAttribute.get("name"));
-            framework.setVersion((String) configuration.getAttribute().get("version"));
-            annotations = new ArrayList<>();
-            for (LinkedHashMap annotationAttribute : (List<LinkedHashMap>) configurationAttribute.get("annotation")) {
-                Annotation annotation = new Annotation();
-                annotation.setName((String) annotationAttribute.get("name"));
-                Map<String,String> parameters = new HashMap<>();
-                for (Map.Entry param: (Set<Map.Entry<String,String>>)((LinkedHashMap) annotationAttribute.get("parameters")).entrySet()) {
-                    parameters.put((String) param.getKey(), (String) param.getValue());
-                }
-                annotation.setParameters(parameters);
-                Breaker breaker = new Breaker();
-                LinkedHashMap cb = (LinkedHashMap) annotationAttribute.get("circuitBreaker");
-                breaker.setCircuitBreaker((String) cb.get("circuitBreaker"));
-                breaker.setParameterMapping(new HashMap<>());
-
-                Map<String,String> parameterMapping = new HashMap<>();
-                for (Map.Entry param: (Set<Map.Entry<String,String>>)((LinkedHashMap) cb.get("parameterMapping")).entrySet()) {
-                    parameterMapping.put((String) param.getKey(), (String) param.getValue());
-                }
-                breaker.setParameterMapping(parameterMapping);
-                annotation.setCircuitBreaker(breaker);
-                annotations.add(annotation);
-            }
-            framework.setSignature(new ArrayList<>());
-            framework.setInterfaceSignature(new ArrayList<>());
-            framework.setAnnotation(annotations);
-            frameworks.put(framework.getName(), framework);
-        }
-        return frameworks;
-    }
-
+    
     public void generateMaps(Map<String, Framework> frameworks, Map<String, Framework> frameworkAnnotationMap, Map<String, Framework> frameworkSignatureMap, Map<String, Framework> frameworkInterfaceSignatureMap) {
         for (Framework framework : frameworks.values()) {
             for (Signature signature : framework.getSignature()) {

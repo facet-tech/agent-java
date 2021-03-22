@@ -1,27 +1,22 @@
 package run.facet.agent.java;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
 import java.lang.instrument.Instrumentation;
 
 public class Agent {
-    private static AgentBiz agentBiz;
 
-    static {
+    public static void premain(String args, Instrumentation instrumentation) {
+        System.out.println("Possible Facets");
+        System.out.println("---------------");
+        ApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
         try {
-            agentBiz = AgentBiz.getAgentBiz();
+            Transformer transformer = ctx.getBean(Transformer.class);
+            instrumentation.addTransformer(transformer);
         } catch (Exception e) {
             System.out.println("An exception prevented the facet agent from starting.");
             e.printStackTrace();
-            agentBiz = null;
-        }
-    }
-
-    public static void premain(String args, Instrumentation instrumentation){
-        System.out.println("Possible Facets");
-        System.out.println("---------------");
-        if(agentBiz != null) {
-            Transformer transformer = new Transformer();
-            transformer.setAgentBiz(agentBiz);
-            instrumentation.addTransformer(transformer);
         }
     }
 }
