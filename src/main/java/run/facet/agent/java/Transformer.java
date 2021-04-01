@@ -32,7 +32,6 @@ public class Transformer implements ClassFileTransformer {
         this.properties = properties;
         this.app = app;
         this.webRequest = webRequest;
-        // fire web request
         webRequest.createApp((App) properties.getProperty(App.class));
         this.circuitBreaker = circuitBreaker;
         this.blockList = blockList;

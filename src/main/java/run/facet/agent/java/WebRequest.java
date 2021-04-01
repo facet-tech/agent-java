@@ -116,7 +116,6 @@ public class WebRequest {
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .timeout(Duration.ofMillis(10000))
                     .build();
-            // HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             CompletableFuture<HttpResponse<String>> response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
             System.out.println(e);
