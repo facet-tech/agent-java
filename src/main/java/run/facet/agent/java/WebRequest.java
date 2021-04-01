@@ -19,7 +19,7 @@ import java.util.concurrent.*;
 @Component
 public class WebRequest {
 
-    private String API_KEY = "API_KEY";
+    private String API_KEY = "ApiKey";
     private static ExecutorService threadPool = Executors.newFixedThreadPool(20, new MyThreadFactory());
     private final String BaseUrl = "https://test.api.facet.run/";
     private App app;

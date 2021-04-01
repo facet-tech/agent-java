@@ -12,6 +12,8 @@ public class App {
     private String environment;
     private String workspaceId;
     private String apiKey;
+    // need this for API AppId
+    private String Id;
 
     @Autowired
     public App(Properties properties) throws IOException {
@@ -63,5 +65,13 @@ public class App {
 
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
+    }
+
+    public String getId() {
+        return Id;
+    }
+
+    public void setId(String id) {
+        Id = id;
     }
 }
