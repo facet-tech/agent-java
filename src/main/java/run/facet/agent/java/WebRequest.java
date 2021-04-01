@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
@@ -17,7 +18,18 @@ import java.util.concurrent.*;
 
 @Component
 public class WebRequest {
-    private static ExecutorService threadPool = Executors.newFixedThreadPool(20,new MyThreadFactory());
+
+    private String API_KEY = "ApiKey";
+    private static ExecutorService threadPool = Executors.newFixedThreadPool(20, new MyThreadFactory());
+    private final String BaseUrl = "https://api.facet.run/";
+    private App app;
+
+
+    @Autowired
+    public WebRequest(App app) {
+        this.app = app;
+    }
+
 
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -43,14 +55,16 @@ public class WebRequest {
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://api.facet.run/facet/backend?appId=" + app.getName()))
+                    .uri(new URI(BaseUrl + "facet/backend?appId=" + app.getName()))
                     .version(HttpClient.Version.HTTP_1_1)
+                    .header(API_KEY, app.getApiKey())
                     .GET()
                     .timeout(Duration.ofMillis(10000))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             ObjectMapper objectMapper = new ObjectMapper();
-            facetList = objectMapper.readValue(response.body(), new TypeReference<List<Facet>>(){});
+            facetList = objectMapper.readValue(response.body(), new TypeReference<List<Facet>>() {
+            });
         } catch (Exception e) {
             System.out.println(e);
         } catch (Throwable e) {
@@ -69,7 +83,8 @@ public class WebRequest {
             String json = ow.writeValueAsString(app);
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://api.facet.run/app"))
+                    .uri(new URI(BaseUrl + "app"))
+                    .header(API_KEY, app.getApiKey())
                     .version(HttpClient.Version.HTTP_1_1)
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .timeout(Duration.ofMillis(10000))
@@ -95,12 +110,12 @@ public class WebRequest {
                     .executor(threadPool)
                     .build();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://api.facet.run/facet/backend"))
+                    .uri(new URI(BaseUrl + "facet/backend"))
                     .version(HttpClient.Version.HTTP_1_1)
+                    .header(API_KEY, app.getApiKey())
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .timeout(Duration.ofMillis(10000))
                     .build();
-           // HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             CompletableFuture<HttpResponse<String>> response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
             System.out.println(e);
@@ -115,8 +130,9 @@ public class WebRequest {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://api.facet.run/facet/configuration?property=" + property + "&id=" + id))
+                    .uri(new URI(BaseUrl + "facet/configuration?property=" + property + "&id=" + id))
                     .version(HttpClient.Version.HTTP_1_1)
+                    .header(API_KEY, app.getApiKey())
                     .GET()
                     .timeout(Duration.ofMillis(10000))
                     .build();
@@ -137,8 +153,9 @@ public class WebRequest {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://api.facet.run/facet/configuration?property=" + property + "&id=" + id))
+                    .uri(new URI(BaseUrl + "facet/configuration?property=" + property + "&id=" + id))
                     .version(HttpClient.Version.HTTP_1_1)
+                    .header(API_KEY, app.getApiKey())
                     .GET()
                     .timeout(Duration.ofMillis(10000))
                     .build();
@@ -161,14 +178,16 @@ public class WebRequest {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://api.facet.run/facet/configurations?property=" + property + "&id=" + id))
+                    .uri(new URI(BaseUrl + "facet/configurations?property=" + property + "&id=" + id))
+                    .header(API_KEY, app.getApiKey())
                     .version(HttpClient.Version.HTTP_1_1)
                     .GET()
                     .timeout(Duration.ofMillis(10000))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             ObjectMapper objectMapper = new ObjectMapper();
-            configurations = objectMapper.readValue(response.body(), new TypeReference<List<Configuration>>(){});
+            configurations = objectMapper.readValue(response.body(), new TypeReference<List<Configuration>>() {
+            });
         } catch (Exception e) {
             System.out.println(e);
         } catch (Throwable e) {
@@ -179,7 +198,7 @@ public class WebRequest {
     }
 
 
-     private static class MyThreadFactory implements ThreadFactory {
+    private static class MyThreadFactory implements ThreadFactory {
         @Override
         public Thread newThread(Runnable r) {
             Thread thread = new Thread(r);
@@ -187,7 +206,4 @@ public class WebRequest {
             return thread;
         }
     }
-
-
-
 }

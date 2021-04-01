@@ -9,20 +9,23 @@ import java.io.IOException;
 public class App {
     private Object attribute;
     private String name;
-    private String id;
     private String environment;
     private String workspaceId;
+    private String apiKey;
+    // need this for API AppId
+    private String Id;
 
     @Autowired
-    public App(WebRequest webRequest, Properties properties) throws IOException {
-        App app = webRequest.createApp((App) properties.getProperty(App.class));
+    public App(Properties properties) throws IOException {
+        App app = (App) properties.getProperty(App.class);
         this.name = app.name;
-        this.id = app.id;
         this.environment = app.environment;
         this.workspaceId = app.workspaceId;
+        this.apiKey = app.apiKey;
     }
 
-    public App(){}
+    public App() {
+    }
 
     public Object getAttribute() {
         return attribute;
@@ -40,14 +43,6 @@ public class App {
         this.name = name;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getEnvironment() {
         return environment;
     }
@@ -62,5 +57,21 @@ public class App {
 
     public void setWorkspaceId(String workspaceId) {
         this.workspaceId = workspaceId;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    public String getId() {
+        return Id;
+    }
+
+    public void setId(String id) {
+        Id = id;
     }
 }

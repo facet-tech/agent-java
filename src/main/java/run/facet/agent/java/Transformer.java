@@ -30,8 +30,9 @@ public class Transformer implements ClassFileTransformer {
     @Autowired
     public Transformer(App app, Properties properties, BlockList blockList, CircuitBreaker circuitBreaker, Toggle toggle, Facets facets, Frameworks frameworks, WebRequest webRequest) throws Exception {
         this.properties = properties;
-        this.webRequest = webRequest;
         this.app = app;
+        this.webRequest = webRequest;
+        webRequest.createApp((App) properties.getProperty(App.class));
         this.circuitBreaker = circuitBreaker;
         this.blockList = blockList;
         this.toggle = toggle;
@@ -85,7 +86,7 @@ public class Transformer implements ClassFileTransformer {
         for (CtMethod method : methods) {
             if (!Modifier.isAbstract(method.getModifiers())) {
                 Signature signature = new Signature(method.getName(), method.getReturnType().getName());
-                addSignatureParameters(method,signature);
+                addSignatureParameters(method, signature);
                 signature.setEnabled(calculateEnabled(facet, signature));
                 signature.setAnnotation(parseAnnotations(method.getAnnotations()));
                 signatureList.add(signature);
