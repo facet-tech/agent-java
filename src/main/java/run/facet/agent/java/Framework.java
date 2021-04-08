@@ -1,15 +1,18 @@
 package run.facet.agent.java;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Framework {
     private String name;
     private String version;
-    private List<Annotation> annotation;
-    private List<Signature> interfaceSignature;
-    private List<Signature> signature;
+    private List<CircuitBreaker> circuitBreakers;
+    private List<Sensor> sensors;
 
-    public Framework() {}
+    public Framework() {
+        this.circuitBreakers = new ArrayList<>();
+        this.sensors = new ArrayList<>();
+    }
 
     public String getName() {
         return name;
@@ -27,28 +30,20 @@ public class Framework {
         this.version = version;
     }
 
-    public List<Annotation> getAnnotation() {
-        return annotation;
+    public List<CircuitBreaker> getCircuitBreakers() {
+        return circuitBreakers;
     }
 
-    public void setAnnotation(List<Annotation> annotation) {
-        this.annotation = annotation;
+    public void setCircuitBreakers(List<CircuitBreaker> circuitBreakers) {
+        this.circuitBreakers = circuitBreakers;
     }
 
-    public List<Signature> getInterfaceSignature() {
-        return interfaceSignature;
+    public List<Sensor> getSensors() {
+        return sensors;
     }
 
-    public void setInterfaceSignature(List<Signature> interfaceSignature) {
-        this.interfaceSignature = interfaceSignature;
-    }
-
-    public List<Signature> getSignature() {
-        return signature;
-    }
-
-    public void setSignature(List<Signature> signature) {
-        this.signature = signature;
+    public void setSensors(List<Sensor> sensors) {
+        this.sensors = sensors;
     }
 }
 

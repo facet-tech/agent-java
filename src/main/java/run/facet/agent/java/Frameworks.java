@@ -7,12 +7,10 @@ import java.util.*;
 
 @Component
 public class Frameworks {
-    private String id = "JAVA~1";
+    private String id = "JAVA~2";
     private String property = "FRAMEWORK~";
-    private Map<String, Framework> frameworks;
+    private List<Framework> frameworks;
     private Map<String, Framework> frameworkAnnotationMap;
-    private Map<String, Framework> frameworkSignatureMap;
-    private Map<String, Framework> frameworkInterfaceSignatureMap;
 
     private WebRequest webRequest;
 
@@ -24,33 +22,24 @@ public class Frameworks {
 
     private void fetchFrameworks() {
         Framework framework = (Framework) webRequest.fetchConfiguration(this.property, this.id,"attribute", Framework.class);
-        Map<String, Framework> frameworks = new HashMap<>(){{put(framework.getName(),framework);}};
-        Map<String, Framework> frameworkAnnotationMap = new HashMap<>();
-        Map<String, Framework> frameworkSignatureMap = new HashMap<>();
-        Map<String, Framework> frameworkInterfaceSignatureMap = new HashMap<>();
-        generateMaps(frameworks, frameworkAnnotationMap, frameworkSignatureMap, frameworkInterfaceSignatureMap);
+        List<Framework> frameworks = new ArrayList<>(){{add(framework);}};
         this.frameworks = frameworks;
-        this.frameworkAnnotationMap = frameworkAnnotationMap;
-        this.frameworkSignatureMap = frameworkSignatureMap;
-        this.frameworkInterfaceSignatureMap = frameworkInterfaceSignatureMap;
+        this.frameworkAnnotationMap = generateMap(frameworks);
     }
     
-    public void generateMaps(Map<String, Framework> frameworks, Map<String, Framework> frameworkAnnotationMap, Map<String, Framework> frameworkSignatureMap, Map<String, Framework> frameworkInterfaceSignatureMap) {
-        for (Framework framework : frameworks.values()) {
-            for (Signature signature : framework.getSignature()) {
-                frameworkSignatureMap.put(signature.getSignature(), framework);
-            }
-            for (Signature signature : framework.getInterfaceSignature()) {
-                frameworkInterfaceSignatureMap.put(signature.getSignature(), framework);
-            }
-            for (Annotation annotation : framework.getAnnotation()) {
-                frameworkAnnotationMap.put(annotation.getName(), framework);
+    public Map<String, Framework>  generateMap(List<Framework> frameworks) {
+        Map<String, Framework> frameworkAnnotationMap = new HashMap<>();
+        for (Framework framework : frameworks) {
+            for (Sensor sensor : framework.getSensors()) {
+                for(Annotation annotation : sensor.getAnnotations())
+                frameworkAnnotationMap.put(annotation.getClassName(), framework);
             }
         }
+        return frameworkAnnotationMap;
     }
 
     public boolean isFramework(Annotation annotation) {
-        return frameworkAnnotationMap.containsKey(annotation.getName());
+        return frameworkAnnotationMap.containsKey(annotation.getClassName());
     }
 
     public boolean isFramework(List<Annotation> annotations) {
@@ -63,7 +52,7 @@ public class Frameworks {
     }
 
     public Framework getFramework(Annotation annotation) {
-        return frameworkAnnotationMap.get(annotation.getName());
+        return frameworkAnnotationMap.get(annotation.getClassName());
     }
 
     public Framework getFramework(List<Annotation> annotations) {
@@ -75,4 +64,3 @@ public class Frameworks {
         return null;
     }
 }
-

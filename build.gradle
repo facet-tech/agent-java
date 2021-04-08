@@ -16,6 +16,7 @@ targetCompatibility = JavaVersion.VERSION_11
 
 def springVersion = '5.3.5'
 def jacksonVersion = '2.12.2'
+def log4JVersion = '2.14.1'
 
 dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
@@ -25,6 +26,8 @@ dependencies {
     implementation group: 'org.javassist', name: 'javassist', version: '3.27.0-GA'
     implementation group: 'org.springframework', name: 'spring-context', version: springVersion
     implementation group: 'org.springframework', name: 'spring-core', version: springVersion
+    //implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4JVersion
+    //implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4JVersion
 }
 
 repositories {
@@ -40,9 +43,9 @@ shadowJar {
                    'Can-Redefine-Classes': true,
                     'Can-Retransform-Classes': true
     }
-    ["com.fasterxml", "javassist", "org.springframework"].each {
-        relocate(it, "$shadedPackagePrefix$it")
-    }
+   ["com.fasterxml", "javassist", "org.springframework"].each {
+       relocate(it, "$shadedPackagePrefix$it")
+   }
 }
 
 java {
@@ -73,8 +76,8 @@ publishing {
             pom {
                 name = archivesBaseName
                 packaging = 'jar'
-                description = 'Facet java agent.'
-                url = 'https://github.com/facet-tech/agent-java'
+                description = 'A experimental low code Java agent to enable and disable endpoints and methods.  Not production ready.'
+                url = 'https://facet.run/documentation/java/'
 
                 scm {
                     connection = 'scm:git:https://github.com/facet-tech/agent-java'
@@ -91,9 +94,9 @@ publishing {
 
                 developers {
                     developer {
-                        id = 'pinsonaw'
-                        name = 'Andy Pinson'
-                        email = 'andrew.w.pinson@gmail.com'
+                        id = 'Facet.Run'
+                        name = 'Facet'
+                        email = 'engineering@facet.run'
                     }
                 }
                 pom.withXml {

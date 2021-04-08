@@ -16,24 +16,23 @@ public class Facets {
     private int refreshInterval = 10000;
     private ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private Toggle toggle;
+    private Toggles toggles;
     private WebRequest webRequest;
 
     //TODO fix race condition where facets could be overwritten by the timer during parsing and vice versa.
     @Autowired
-    public Facets(App app, WebRequest webRequest, Toggle toggle) {
+    public Facets(App app, WebRequest webRequest, Toggles toggles) {
         this.webRequest = webRequest;
         this.app = app;
         this.facetMap = new HashMap<>();
-        this.toggle = toggle;
+        this.toggles = toggles;
         fetchFacets();
         timer = new Timer(true);
         timer.schedule(new FacetTimer(), refreshInterval,refreshInterval);
     }
 
     private void fetchFacets() {
-        List<Facet> facets = webRequest.fetchFacet(app);
-        lock.writeLock().lock();
+        List<Facet> facets = webRequest.fetchFacet(app);lock.writeLock().lock();
         try {
             for (Facet facet : facets) {
                 updateFacetMaps(facet);
@@ -47,13 +46,14 @@ public class Facets {
     private void updateFacetMaps(Facet facet) {
         facetMap.put(facet.getFullyQualifiedName(), facet);
         for (Signature signature : facet.getSignature()) {
-            toggle.updateToggle(facet.getFullyQualifiedName(),signature.getSignature(),signature.isEnabled());
+            toggles.updateToggle(facet.getFullyQualifiedName(),signature.getSignature(),signature.isEnabled());
         }
     }
 
     public void add(Facet facet) {
         lock.writeLock().lock();
         try {
+            //TODO add support for facets changes
             if (!contains(facet)) {
                 this.facets.add(facet);
                 updateFacetMaps(facet);

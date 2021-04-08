@@ -1,43 +1,44 @@
 package run.facet.agent.java;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Annotation {
-    private String name;
-    private Map<String, String> parameters;
-    private Breaker circuitBreaker;
+    private String className;
+    private List<Parameter> parameters;
+    private String visibility;
+
 
     public Annotation() {
-        parameters = new HashMap<>();
+        parameters = new ArrayList<>();
     }
 
-    public String getName() {
-        return name;
+    public String getClassName() {
+        return className;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setClassName(String className) {
+        this.className = className;
     }
 
-    public Map<String, String> getParameters() {
+    public List<Parameter> getParameters() {
         return parameters;
     }
 
-    public void setParameters(Map<String, String> parameters) {
+    public void setParameters(List<Parameter> parameters) {
         this.parameters = parameters;
     }
 
-    public Breaker getCircuitBreaker() {
-        return circuitBreaker;
+    public void addParameter(Parameter parameter) {
+        parameters.add(parameter);
     }
 
-    public void setCircuitBreaker(Breaker circuitBreaker) {
-        this.circuitBreaker = circuitBreaker;
+    public String getVisibility() {
+        return visibility;
     }
 
-    public void addParameter(String name, String value) {
-        parameters.put(name,value);
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
     }
 }
 

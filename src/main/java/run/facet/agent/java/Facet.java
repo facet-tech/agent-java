@@ -26,6 +26,12 @@ public class Facet {
         this.version = version;
         this.language = language;
         this.type = type;
+        this.signature = new ArrayList<>();
+        this.signatureMap = new HashMap<>();
+        this.attribute = new HashMap<>();
+        this.framework = new ArrayList<>();
+        this.interfaceSignature = new ArrayList<>();
+        this.annotation = new ArrayList<>();
     }
 
     public Facet() {

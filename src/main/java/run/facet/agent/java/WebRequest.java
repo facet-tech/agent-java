@@ -5,9 +5,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.lang.Exception;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -37,7 +39,6 @@ public class WebRequest {
             threadPool.shutdown();
             while (true) {
                 try {
-
                     System.out.println("Waiting for the service to terminate...");
                     if (threadPool.awaitTermination(30, TimeUnit.SECONDS)) {
                         break;
@@ -49,7 +50,7 @@ public class WebRequest {
         }));
     }
 
-    public List<Facet> fetchFacet(App app) {
+    public List<Facet> fetchFacet(App apfp) {
         List<Facet> facetList = null;
         try {
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -165,7 +166,7 @@ public class WebRequest {
             JsonNode productNode = new ObjectMapper().readTree(responseBody);
             object = objectMapper.readValue(productNode.get(field).toString(), clazz);
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         } catch (Throwable e) {
             System.out.println(e);
             e.printStackTrace();
@@ -173,6 +174,31 @@ public class WebRequest {
         return object;
     }
 
+    public List<Object> fetchConfigurationList(String property, String id, String field, Class clazz) {
+        List<Object> objectList = null;
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(BaseUrl + "facet/configuration?property=" + property + "&id=" + id))
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .header(API_KEY, app.getApiKey())
+                    .GET()
+                    .timeout(Duration.ofMillis(10000))
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            ObjectMapper objectMapper = new ObjectMapper();
+            String responseBody = response.body();
+            JsonNode rootNode = new ObjectMapper().readTree(responseBody);
+            CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, clazz);
+            objectList = objectMapper.readValue(rootNode.get(field).toString(), listType);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } catch (Throwable e) {
+            System.out.println(e);
+            e.printStackTrace();
+        }
+        return objectList;
+    }
     public List<Configuration> fetchConfigurations(String property, String id) {
         List<Configuration> configurations = null;
         try {

@@ -10,11 +10,11 @@ public class Agent {
     public static void premain(String args, Instrumentation instrumentation) {
         System.out.println("Possible Facets");
         System.out.println("---------------");
-        ApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
         try {
+            ApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
             Transformer transformer = ctx.getBean(Transformer.class);
             instrumentation.addTransformer(transformer);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             System.out.println("An exception prevented the facet agent from starting.");
             e.printStackTrace();
         }

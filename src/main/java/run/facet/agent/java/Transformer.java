@@ -1,11 +1,16 @@
 package run.facet.agent.java;
 
 import javassist.*;
-import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ConstPool;
 import javassist.bytecode.annotation.AnnotationImpl;
+import javassist.bytecode.annotation.ArrayMemberValue;
+import javassist.bytecode.annotation.ClassMemberValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.InvocationHandler;
@@ -20,22 +25,22 @@ import java.util.Set;
 public class Transformer implements ClassFileTransformer {
     private Properties properties;
     private App app;
-    private CircuitBreaker circuitBreaker;
+    private CircuitBreakers circuitBreakers;
     private BlockList blockList;
-    private Toggle toggle;
+    private Toggles toggles;
     private Facets facets;
     private Frameworks frameworks;
     private WebRequest webRequest;
 
     @Autowired
-    public Transformer(App app, Properties properties, BlockList blockList, CircuitBreaker circuitBreaker, Toggle toggle, Facets facets, Frameworks frameworks, WebRequest webRequest) throws Exception {
+    public Transformer(App app, Properties properties, BlockList blockList, CircuitBreakers circuitBreakers, Toggles toggles, Facets facets, Frameworks frameworks, WebRequest webRequest) throws java.lang.Exception {
         this.properties = properties;
         this.app = app;
         this.webRequest = webRequest;
         webRequest.createApp((App) properties.getProperty(App.class));
-        this.circuitBreaker = circuitBreaker;
+        this.circuitBreakers = circuitBreakers;
         this.blockList = blockList;
-        this.toggle = toggle;
+        this.toggles = toggles;
         this.facets = facets;
         this.frameworks = frameworks;
     }
@@ -54,6 +59,10 @@ public class Transformer implements ClassFileTransformer {
                 CtClass cf = classPool.get(className.replace("/", "."));
                 facets.add(createFacet(cf, classPool));
                 classfileBuffer = cf.toBytecode();
+                File test = new File("test/" + className.replace("/", ".") + ".class");
+                FileOutputStream fos = new FileOutputStream(test);
+                fos.write(classfileBuffer);
+                fos.close();
                 cf.detach();
             }
         } catch (Throwable ignored) {
@@ -64,34 +73,37 @@ public class Transformer implements ClassFileTransformer {
         }
     }
 
+
     public Facet createFacet(CtClass cf, ClassPool classPool) {
         Facet facet = null;
         try {
             facet = new Facet(app.getName(), cf.getName(), cf.isInterface() ? "interface" : "class", "0.0.1", new Language("java", System.getProperty("java.version")));
             facet.setParentSignature(cf.getSuperclass().getName());
             facet.setAnnotation(parseAnnotations(cf.getAnnotations()));
-            facet.setSignature(parseMethods(cf.getDeclaredMethods(), facet, classPool));
+            facet.setSignature(parseMethods(cf, cf.getDeclaredMethods(), facet, classPool));
             facet.setInterfaceSignature(parseInterfaces(cf.getInterfaces()));
         } catch (NotFoundException e) {
             e.printStackTrace();
-        } catch (Exception e) {
+        } catch (java.lang.Exception e) {
             e.printStackTrace();
         } finally {
             return facet;
         }
     }
 
-    public List<Signature> parseMethods(CtMethod[] methods, Facet facet, ClassPool classPool) throws CannotCompileException, NotFoundException, ClassNotFoundException {
+    public List<Signature> parseMethods(CtClass ctClass, CtMethod[] methods, Facet facet, ClassPool classPool) throws CannotCompileException, NotFoundException, ClassNotFoundException {
         List<Signature> signatureList = new ArrayList<>();
         for (CtMethod method : methods) {
             if (!Modifier.isAbstract(method.getModifiers())) {
-                Signature signature = new Signature(method.getName(), method.getReturnType().getName());
+                Signature signature = new Signature();
+                signature.setName(method.getName());
+                signature.setReturnType(method.getReturnType().getName());
                 addSignatureParameters(method, signature);
                 signature.setEnabled(calculateEnabled(facet, signature));
                 signature.setAnnotation(parseAnnotations(method.getAnnotations()));
                 signatureList.add(signature);
-                toggle.updateToggle(facet.getFullyQualifiedName(), signature.getSignature(), signature.isEnabled());
-                insertToggleLogic(classPool, facet, method, signature);
+                toggles.updateToggle(facet.getFullyQualifiedName(), signature.getSignature(), signature.isEnabled());
+                insertToggleLogic(ctClass, classPool, facet, method, signature);
             }
         }
         return signatureList;
@@ -101,7 +113,6 @@ public class Transformer implements ClassFileTransformer {
         int position = 1;
         for (CtClass param : method.getParameterTypes()) {
             Parameter parameter = new Parameter();
-            parameter.setName(param.getName());
             parameter.setType(param.getName());
             parameter.setPosition(position);
             signature.addParameter(parameter);
@@ -118,13 +129,48 @@ public class Transformer implements ClassFileTransformer {
         return isEnabled;
     }
 
-    public void insertToggleLogic(ClassPool classPool, Facet facet, CtMethod method, Signature signature) throws CannotCompileException, NotFoundException {
-        Breaker breaker = getBreaker(signature);
-        String toggleLogic = breaker.getCircuitBreaker().replace("${toggle}", "run.facet.agent.java.Toggle.isEnabled(\"" + toggle.getToggleName(facet.getFullyQualifiedName(), signature.getSignature()) + "\")");
-        for (Map.Entry<String, String> entry : breaker.getParameterMapping().entrySet()) {
+    public void insertToggleLogic(CtClass ctclass, ClassPool classPool, Facet facet, CtMethod method, Signature signature) throws CannotCompileException, NotFoundException {
+        CircuitBreaker circuitBreaker = getBreaker(signature);
+        String toggleLogic = circuitBreaker.getToggle().getMethod().getBody().replace("${toggle}", "run.facet.agent.java.Toggles.isEnabled(\"" + toggles.getToggleName(facet.getFullyQualifiedName(), signature.getSignature()) + "\")");
+        for (Map.Entry<String, String> entry : circuitBreaker.getToggle().getParameterMapping().entrySet()) {
             if (signature.getParameterByReturnType(entry.getValue()) == null) {
-                method.insertParameter(classPool.get(entry.getValue()));
-                toggleLogic = toggleLogic.replace("${" + entry.getKey() + "}", "$1");
+
+
+                //Create exceptionHandler
+                CtClass request = classPool.get("javax.servlet.http.HttpServletRequest");
+                CtClass response = classPool.get("javax.servlet.http.HttpServletResponse");
+                CtClass circuitBreakerException = classPool.get(CircuitBreakerException.class.getName());
+
+                CtMethod ctMethod = CtNewMethod.make(Modifier.PUBLIC, CtClass.voidType, "handleFacetRunCircuitBreakerException", new CtClass[]{circuitBreakerException,request,response}, null, "try { $3.sendError(403,\"Access Denied\");  } catch (Exception e) { }", ctclass);
+
+                ConstPool dude = method.getMethodInfo().getConstPool();
+                String exceptionHandlerString = "org.".concat("springframework.web.bind.annotation.ExceptionHandler");
+                CtClass c1 = classPool.get(exceptionHandlerString);
+
+                AnnotationsAttribute attr = new AnnotationsAttribute(dude, AnnotationsAttribute.visibleTag);
+                javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(exceptionHandlerString, dude);
+
+                ClassMemberValue classMemberValue = new ClassMemberValue(circuitBreakerException.getName(), dude);
+                ArrayMemberValue arrayMemberValue = new ArrayMemberValue(dude);
+
+                ClassMemberValue[] classArray = {classMemberValue};
+                arrayMemberValue.setValue(classArray);
+                annotation.addMemberValue("value",arrayMemberValue);
+                attr.addAnnotation(annotation);
+                ctMethod.getMethodInfo().addAttribute(attr);
+                ctclass.addMethod(ctMethod);
+
+
+                //Throw exception
+                CtClass[] exceptionList = new CtClass[method.getExceptionTypes().length + 1];
+                int index = 0;
+                for (CtClass exception : method.getExceptionTypes()) {
+                    exceptionList[index] = exception;
+                    index++;
+                }
+                exceptionList[index] = circuitBreakerException;
+                method.setExceptionTypes(exceptionList);
+                toggleLogic = "if(!run.facet.agent.java.Toggles.isEnabled(\"" + toggles.getToggleName(facet.getFullyQualifiedName(), signature.getSignature()) + "\")) {throw new run.facet.agent.java.CircuitBreakerException();}";
             } else {
                 toggleLogic = toggleLogic.replace("${" + entry.getKey() + "}", "$" + signature.getParameterByReturnType(entry.getValue()).getPosition());
             }
@@ -132,14 +178,14 @@ public class Transformer implements ClassFileTransformer {
         method.insertBefore(toggleLogic);
     }
 
-    public Breaker getBreaker(Signature signature) throws CannotCompileException, NotFoundException {
-        Breaker breaker;
+    public CircuitBreaker getBreaker(Signature signature) throws CannotCompileException, NotFoundException {
+        CircuitBreaker circuitBreaker;
         if (frameworks.isFramework(signature.getAnnotation())) {
-            breaker = frameworks.getFramework(signature.getAnnotation()).getAnnotation().get(0).getCircuitBreaker();
+            circuitBreaker = frameworks.getFramework(signature.getAnnotation()).getCircuitBreakers().get(0);
         } else {
-            breaker = circuitBreaker.getBreaker(signature.getReturnType());
+            circuitBreaker = circuitBreakers.getBreaker(signature.getReturnType());
         }
-        return breaker;
+        return circuitBreaker;
     }
 
     public List<run.facet.agent.java.Annotation> parseAnnotations(Object[] objectList) {
@@ -148,15 +194,20 @@ public class Transformer implements ClassFileTransformer {
             if (object instanceof Proxy) {
                 InvocationHandler invocationHandler = Proxy.getInvocationHandler((Proxy) object);
                 if (invocationHandler instanceof AnnotationImpl) {
-                    Annotation annotation = ((AnnotationImpl) invocationHandler).getAnnotation();
+                    javassist.bytecode.annotation.Annotation annotation = ((AnnotationImpl) invocationHandler).getAnnotation();
                     run.facet.agent.java.Annotation facetAnnotation = new run.facet.agent.java.Annotation();
-                    facetAnnotation.setName(annotation.getTypeName());
+                    facetAnnotation.setClassName(annotation.getTypeName());
                     Set<String> parameters = annotation.getMemberNames();
                     if (parameters != null) {
                         for (String parameter : parameters) {
-                            facetAnnotation.addParameter(parameter, annotation.getMemberValue(parameter).toString());
+                            Parameter param = new Parameter();
+                            Parameter value = new Parameter();
+                            param.setName(parameter);
+                            value.setClassName(annotation.getMemberValue(parameter).toString());
+                            facetAnnotation.addParameter(param);
                         }
                     }
+                    ///annotation.getTypeName()
                     annotations.add(facetAnnotation);
                 }
             }

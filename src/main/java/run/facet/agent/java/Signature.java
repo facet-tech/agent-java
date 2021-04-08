@@ -16,15 +16,11 @@ public class Signature {
     private List<Annotation> annotation;
     private Map<String,Annotation> annotationMap;
 
-    public Signature(String name, String returnType) {
-        this.name = name;
-        this.returnType = returnType;
+    public Signature() {
         this.parameter = new ArrayList<>();
         this.parameterNameMap = new HashMap<>();
         this.parameterReturnTypeMap = new HashMap<>();
     }
-
-    public Signature() {}
 
     public boolean isEnabled() {
         return enabled;
