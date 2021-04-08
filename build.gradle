@@ -9,7 +9,7 @@ plugins {
 
 group = "run.facet.agent.java"
 archivesBaseName = "facet-agent"
-version = '0.0.7'
+version = '0.0.8'
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
@@ -76,7 +76,7 @@ publishing {
             pom {
                 name = archivesBaseName
                 packaging = 'jar'
-                description = 'A experimental low code Java agent to enable and disable endpoints and methods.  Not production ready.'
+                description = 'An experimental low-code Java agent to enable and disable endpoints and methods.  Not production ready.'
                 url = 'https://facet.run/documentation/java/'
 
                 scm {
