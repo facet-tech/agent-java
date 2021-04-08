@@ -1,0 +1,46 @@
+Configuration:
+  status: warn
+  name: YAMLConfigTest
+  properties:
+    property:
+      name: filename
+      value: test-yaml.log
+  thresholdFilter:
+    level: debug
+  appenders:
+    Console:
+      name: STDOUT
+      target: SYSTEM_OUT
+      PatternLayout:
+        Pattern: "%m%n"
+    File:
+      name: File
+      fileName: ${filename}
+      PatternLayout:
+        Pattern: "%d %p %C{1.} [%t] %m%n"
+      Filters:
+        ThresholdFilter:
+          level: error
+
+  Loggers:
+    logger:
+      -
+        name: org.apache.logging.log4j.test1
+        level: debug
+        additivity: false
+        ThreadContextMapFilter:
+          KeyValuePair:
+            key: test
+            value: 123
+        AppenderRef:
+          ref: STDOUT
+      -
+        name: org.apache.logging.log4j.test2
+        level: debug
+        additivity: false
+        AppenderRef:
+          ref: File
+    Root:
+      level: error
+      AppenderRef:
+        ref: STDOUT
