@@ -13,14 +13,19 @@ public class Properties {
 
     private File file;
     private ObjectMapper objectMapper;
+    private final String facetYaml = "/facet.yml";
 
     public Properties() throws URISyntaxException {
-        this.file = getJarPath();
+        this.file = getFacetYaml();
         objectMapper = new ObjectMapper(new YAMLFactory());
     }
 
-    private File getJarPath() throws URISyntaxException {
-        return new File(new File(Properties.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent() + "/facet.yml");
+    public String getJarPath() throws URISyntaxException {
+        return new File(Properties.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
+    }
+
+    public File getFacetYaml() throws URISyntaxException {
+        return new File(getJarPath() + facetYaml);
     }
 
     public Object getProperty(Class clazz) throws IOException {

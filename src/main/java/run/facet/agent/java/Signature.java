@@ -9,7 +9,7 @@ public class Signature {
     private boolean enabled;
     private String name;
     private List<Parameter> parameter;
-    private Map<String,Parameter> parameterReturnTypeMap;
+    private Map<String,Parameter> parameterClassNameMap;
     private Map<String,Parameter> parameterNameMap;
     private String returnType;
     private String signature;
@@ -19,7 +19,7 @@ public class Signature {
     public Signature() {
         this.parameter = new ArrayList<>();
         this.parameterNameMap = new HashMap<>();
-        this.parameterReturnTypeMap = new HashMap<>();
+        this.parameterClassNameMap = new HashMap<>();
     }
 
     public boolean isEnabled() {
@@ -48,7 +48,9 @@ public class Signature {
 
     public void addParameter(Parameter parameter) {
        this.parameter.add(parameter);
-       this.parameterReturnTypeMap.put(parameter.getType(),parameter);
+       if(parameter.getClassName() != null) {
+           this.parameterClassNameMap.put(parameter.getClassName(),parameter);
+       }
        this.parameterNameMap.put(parameter.getName(),parameter);
     }
 
@@ -57,7 +59,7 @@ public class Signature {
     }
 
     public Parameter getParameterByReturnType(String returnType) {
-        return this.parameterReturnTypeMap.get(returnType);
+        return this.parameterClassNameMap.get(returnType);
     }
 
     public String getReturnType() {

@@ -7,7 +7,7 @@ import java.util.*;
 
 @Component
 public class Frameworks {
-    private String id = "JAVA~2";
+    private String id = "JAVA~1";
     private String property = "FRAMEWORK~";
     private List<Framework> frameworks;
     private Map<String, Framework> frameworkAnnotationMap;

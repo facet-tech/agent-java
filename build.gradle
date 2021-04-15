@@ -9,7 +9,7 @@ plugins {
 
 group = "run.facet.agent.java"
 archivesBaseName = "facet-agent"
-version = '0.0.8'
+version = 'master-snapshot'
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
@@ -26,8 +26,8 @@ dependencies {
     implementation group: 'org.javassist', name: 'javassist', version: '3.27.0-GA'
     implementation group: 'org.springframework', name: 'spring-context', version: springVersion
     implementation group: 'org.springframework', name: 'spring-core', version: springVersion
-    //implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4JVersion
-    //implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4JVersion
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4JVersion
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4JVersion
 }
 
 repositories {
@@ -40,12 +40,13 @@ shadowJar {
     project.configurations.implementation.canBeResolved(true);
     manifest {
         attributes 'Premain-Class': 'run.facet.agent.java.Agent',
-                   'Can-Redefine-Classes': true,
-                    'Can-Retransform-Classes': true
+                'Can-Redefine-Classes': true,
+                'Can-Retransform-Classes': true
     }
-   ["com.fasterxml", "javassist", "org.springframework"].each {
-       relocate(it, "$shadedPackagePrefix$it")
-   }
+    ["com.fasterxml", "org.springframework", "javassist", "org.apache", "org.yaml", "org.aopalliance"].each {
+        relocate(it, "$shadedPackagePrefix$it")
+    }
+    transform(com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer)
 }
 
 java {

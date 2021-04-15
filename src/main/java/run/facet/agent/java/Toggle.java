@@ -5,7 +5,12 @@ import java.util.Map;
 
 public class Toggle {
     public Method method;
-    public Map<String,String> parameterMapping;
+    public Map<String, String> parameterMapping;
+
+    public Toggle(Method method) {
+        this.method = method;
+        this.parameterMapping = new HashMap<>();
+    }
 
     public Toggle() {
         parameterMapping = new HashMap<>();

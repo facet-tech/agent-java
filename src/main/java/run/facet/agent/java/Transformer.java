@@ -6,20 +6,23 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.annotation.AnnotationImpl;
 import javassist.bytecode.annotation.ArrayMemberValue;
 import javassist.bytecode.annotation.ClassMemberValue;
+import javassist.bytecode.annotation.MemberValue;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class Transformer implements ClassFileTransformer {
@@ -31,10 +34,14 @@ public class Transformer implements ClassFileTransformer {
     private Facets facets;
     private Frameworks frameworks;
     private WebRequest webRequest;
+    private LogInitializer logInitializer;
+    private Logger logger;
 
     @Autowired
-    public Transformer(App app, Properties properties, BlockList blockList, CircuitBreakers circuitBreakers, Toggles toggles, Facets facets, Frameworks frameworks, WebRequest webRequest) throws java.lang.Exception {
+    public Transformer(App app, Properties properties, BlockList blockList, CircuitBreakers circuitBreakers, Toggles toggles, Facets facets, Frameworks frameworks, WebRequest webRequest, LogInitializer logInitializer) throws java.lang.Exception {
         this.properties = properties;
+        this.logInitializer = logInitializer;
+        this.logger = logInitializer.getLogger();
         this.app = app;
         this.webRequest = webRequest;
         webRequest.createApp((App) properties.getProperty(App.class));
@@ -53,46 +60,62 @@ public class Transformer implements ClassFileTransformer {
                             byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
             if (!blockList.contains(className)) {
-                System.out.println(className);
+                logger.info(className);
                 ClassPool classPool = ClassPool.getDefault();
                 classPool.appendSystemPath();
-                CtClass cf = classPool.get(className.replace("/", "."));
-                facets.add(createFacet(cf, classPool));
-                classfileBuffer = cf.toBytecode();
-                File test = new File("test/" + className.replace("/", ".") + ".class");
-                FileOutputStream fos = new FileOutputStream(test);
-                fos.write(classfileBuffer);
-                fos.close();
-                cf.detach();
+                try {
+                    CtClass cf = classPool.get(className.replace("/", "."));
+                    facets.add(createFacet(cf, classPool));
+                    classfileBuffer = cf.toBytecode();
+                    writeModifiedClassToFile(className, classfileBuffer);
+                    cf.detach();
+                } catch (NotFoundException e) {
+                    logger.warn("Unable to find class:" + className);
+                }
             }
-        } catch (Throwable ignored) {
-            System.out.println("");
-            ignored.printStackTrace();
+        } catch (Throwable e) {
+            logger.error(e.getMessage(),e);
         } finally {
             return classfileBuffer;
         }
     }
 
-
-    public Facet createFacet(CtClass cf, ClassPool classPool) {
-        Facet facet = null;
+    public void writeModifiedClassToFile(String className, byte[] classToWrite) {
+        FileOutputStream fos = null;
         try {
-            facet = new Facet(app.getName(), cf.getName(), cf.isInterface() ? "interface" : "class", "0.0.1", new Language("java", System.getProperty("java.version")));
-            facet.setParentSignature(cf.getSuperclass().getName());
-            facet.setAnnotation(parseAnnotations(cf.getAnnotations()));
-            facet.setSignature(parseMethods(cf, cf.getDeclaredMethods(), facet, classPool));
-            facet.setInterfaceSignature(parseInterfaces(cf.getInterfaces()));
-        } catch (NotFoundException e) {
-            e.printStackTrace();
-        } catch (java.lang.Exception e) {
-            e.printStackTrace();
+            String baseDir = properties.getJarPath() + "/facetRunModifiedClasses/";
+            Files.createDirectories(Path.of(baseDir));
+            File test = new File(baseDir + className.replace("/", ".") + ".class");
+            fos = new FileOutputStream(test);
+            fos.write(classToWrite);
+        } catch (IOException e) {
+            logger.error(e.getStackTrace());
+        } catch (URISyntaxException e) {
+            logger.error(e.getStackTrace());
         } finally {
-            return facet;
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+
+    public Facet createFacet(CtClass cf, ClassPool classPool) throws NotFoundException, ClassNotFoundException, CannotCompileException {
+        Facet facet = null;
+        facet = new Facet(app.getName(), cf.getName(), cf.isInterface() ? "interface" : "class", "0.0.1", new Language("java", System.getProperty("java.version")));
+        facet.setParentSignature(cf.getSuperclass().getName());
+        facet.setAnnotation(parseAnnotations(cf.getAnnotations()));
+        facet.setSignature(parseMethods(cf, cf.getDeclaredMethods(), facet, classPool));
+        facet.setInterfaceSignature(parseInterfaces(cf.getInterfaces()));
+        return facet;
+
     }
 
     public List<Signature> parseMethods(CtClass ctClass, CtMethod[] methods, Facet facet, ClassPool classPool) throws CannotCompileException, NotFoundException, ClassNotFoundException {
         List<Signature> signatureList = new ArrayList<>();
+        HashMap<String, String> createdMethods = new HashMap<>();
         for (CtMethod method : methods) {
             if (!Modifier.isAbstract(method.getModifiers())) {
                 Signature signature = new Signature();
@@ -103,7 +126,7 @@ public class Transformer implements ClassFileTransformer {
                 signature.setAnnotation(parseAnnotations(method.getAnnotations()));
                 signatureList.add(signature);
                 toggles.updateToggle(facet.getFullyQualifiedName(), signature.getSignature(), signature.isEnabled());
-                insertToggleLogic(ctClass, classPool, facet, method, signature);
+                insertToggleLogic(ctClass, classPool, facet, method, signature, createdMethods);
             }
         }
         return signatureList;
@@ -113,8 +136,9 @@ public class Transformer implements ClassFileTransformer {
         int position = 1;
         for (CtClass param : method.getParameterTypes()) {
             Parameter parameter = new Parameter();
-            parameter.setType(param.getName());
+            parameter.setClassName(param.getName());
             parameter.setPosition(position);
+            parameter.setType(Parameter.Type.string);
             signature.addParameter(parameter);
             position++;
         }
@@ -129,60 +153,122 @@ public class Transformer implements ClassFileTransformer {
         return isEnabled;
     }
 
-    public void insertToggleLogic(CtClass ctclass, ClassPool classPool, Facet facet, CtMethod method, Signature signature) throws CannotCompileException, NotFoundException {
+    public void insertToggleLogic(CtClass ctclass, ClassPool classPool, Facet facet, CtMethod method, Signature signature, Map<String, String> createdMethods) throws CannotCompileException, NotFoundException {
         CircuitBreaker circuitBreaker = getBreaker(signature);
-        String toggleLogic = circuitBreaker.getToggle().getMethod().getBody().replace("${toggle}", "run.facet.agent.java.Toggles.isEnabled(\"" + toggles.getToggleName(facet.getFullyQualifiedName(), signature.getSignature()) + "\")");
-        for (Map.Entry<String, String> entry : circuitBreaker.getToggle().getParameterMapping().entrySet()) {
-            if (signature.getParameterByReturnType(entry.getValue()) == null) {
+        List<CtMethod> methodsToCreate = createMethods(circuitBreaker, ctclass, classPool, method, signature, facet, createdMethods);
 
-
-                //Create exceptionHandler
-                CtClass request = classPool.get("javax.servlet.http.HttpServletRequest");
-                CtClass response = classPool.get("javax.servlet.http.HttpServletResponse");
-                CtClass circuitBreakerException = classPool.get(CircuitBreakerException.class.getName());
-
-                CtMethod ctMethod = CtNewMethod.make(Modifier.PUBLIC, CtClass.voidType, "handleFacetRunCircuitBreakerException", new CtClass[]{circuitBreakerException,request,response}, null, "try { $3.sendError(403,\"Access Denied\");  } catch (Exception e) { }", ctclass);
-
-                ConstPool dude = method.getMethodInfo().getConstPool();
-                String exceptionHandlerString = "org.".concat("springframework.web.bind.annotation.ExceptionHandler");
-                CtClass c1 = classPool.get(exceptionHandlerString);
-
-                AnnotationsAttribute attr = new AnnotationsAttribute(dude, AnnotationsAttribute.visibleTag);
-                javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(exceptionHandlerString, dude);
-
-                ClassMemberValue classMemberValue = new ClassMemberValue(circuitBreakerException.getName(), dude);
-                ArrayMemberValue arrayMemberValue = new ArrayMemberValue(dude);
-
-                ClassMemberValue[] classArray = {classMemberValue};
-                arrayMemberValue.setValue(classArray);
-                annotation.addMemberValue("value",arrayMemberValue);
-                attr.addAnnotation(annotation);
-                ctMethod.getMethodInfo().addAttribute(attr);
-                ctclass.addMethod(ctMethod);
-
-
-                //Throw exception
-                CtClass[] exceptionList = new CtClass[method.getExceptionTypes().length + 1];
-                int index = 0;
-                for (CtClass exception : method.getExceptionTypes()) {
-                    exceptionList[index] = exception;
-                    index++;
-                }
-                exceptionList[index] = circuitBreakerException;
-                method.setExceptionTypes(exceptionList);
-                toggleLogic = "if(!run.facet.agent.java.Toggles.isEnabled(\"" + toggles.getToggleName(facet.getFullyQualifiedName(), signature.getSignature()) + "\")) {throw new run.facet.agent.java.CircuitBreakerException();}";
-            } else {
-                toggleLogic = toggleLogic.replace("${" + entry.getKey() + "}", "$" + signature.getParameterByReturnType(entry.getValue()).getPosition());
-            }
+        for (CtMethod ctMethod : methodsToCreate) {
+            ctclass.addMethod(ctMethod);
         }
-        method.insertBefore(toggleLogic);
+        if (circuitBreaker.getToggle().getMethod().getExceptions().size() > 0) {
+            method.setExceptionTypes(createExceptions(circuitBreaker.getToggle().getMethod().getExceptions(), method.getExceptionTypes(), classPool));
+        }
+        method.insertBefore(createToggleLogic(signature, circuitBreaker.getToggle(), facet));
     }
 
-    public CircuitBreaker getBreaker(Signature signature) throws CannotCompileException, NotFoundException {
-        CircuitBreaker circuitBreaker;
+    public List<CtMethod> createMethods(CircuitBreaker circuitBreaker, CtClass ctclass, ClassPool classPool, CtMethod method, Signature signature, Facet facet, Map<String, String> createdMethods) throws CannotCompileException, NotFoundException {
+        List<CtMethod> methods = new ArrayList<>();
+        for (Method methodToCreate : circuitBreaker.getMethodsToCreate()) {
+            if (!createdMethods.containsKey(methodToCreate.getName())) {
+                createdMethods.put(methodToCreate.getName(), methodToCreate.getName());
+                ConstPool constantPool = method.getMethodInfo().getConstPool();
+
+                CtMethod ctMethod = CtNewMethod.make(
+                        methodToCreate.getModifierInt(methodToCreate.getModifier()),
+                        methodToCreate.getReturnType2(methodToCreate.getReturnType()),
+                        methodToCreate.getName(),
+                        getParameters(methodToCreate, classPool),
+                        getExceptions(methodToCreate, classPool),
+                        createToggleLogic(signature, new Toggle(methodToCreate), facet) /* replace body */,
+                        ctclass
+                );
+
+                for (Annotation annotation : methodToCreate.getAnnotations()) {
+                    AnnotationsAttribute attr = new AnnotationsAttribute(constantPool, annotation.getVisibilityString(annotation.getVisibility()));
+                    javassist.bytecode.annotation.Annotation ann = new javassist.bytecode.annotation.Annotation(annotation.getClassName(), constantPool);
+                    for (Parameter parameter : annotation.getParameters()) {
+                        if ("run.facet.dependencies.javassist.bytecode.annotation.ArrayMemberValue".equals(parameter.getClassName())) {
+                            ArrayMemberValue arrayMemberValue = new ArrayMemberValue(constantPool);
+                            MemberValue[] memberValueArray = new MemberValue[parameter.getValues().size()];
+                            int index = 0;
+                            for (Parameter subParam : parameter.getValues()) {
+                                if ("run.facet.dependencies.javassist.bytecode.annotation.ClassMemberValue".equals(subParam.getClassName())) {
+                                    ClassMemberValue classMemberValue = new ClassMemberValue(subParam.getValue(), constantPool);
+                                    memberValueArray[index] = classMemberValue;
+                                    index++;
+                                }
+                            }
+                            arrayMemberValue.setValue(memberValueArray);
+                            ann.addMemberValue(parameter.getName(), arrayMemberValue);
+                            attr.addAnnotation(ann);
+                            ctMethod.getMethodInfo().addAttribute(attr);
+                        }
+                    }
+                }
+                methods.add(ctMethod);
+            }
+        }
+        return methods;
+    }
+
+    public String createToggleLogic(Signature signature, Toggle toggle, Facet facet) {
+        String toggleLogic = toggle.getMethod().getBody().replace("${toggle}", "run.facet.agent.java.Toggles.isEnabled(\"" + toggles.getToggleName(facet.getFullyQualifiedName(), signature.getSignature()) + "\")");
+        for (Map.Entry<String, String> entry : toggle.getParameterMapping().entrySet()) {
+            toggleLogic = toggleLogic.replace("${" + entry.getKey() + "}", "$" + signature.getParameterByReturnType(entry.getValue()).getPosition());
+        }
+        return toggleLogic;
+    }
+
+    public CtClass[] createExceptions(List<Exception> exceptions, CtClass[] existingExceptions, ClassPool classPool) throws NotFoundException {
+        CtClass[] exceptionList = new CtClass[exceptions.size() + existingExceptions.length];
+        int index = 0;
+        for (CtClass exception : existingExceptions) {
+            exceptionList[index] = exception;
+            index++;
+        }
+        for (Exception exception : exceptions) {
+            exceptionList[index] = classPool.get(exception.getClassName());
+        }
+        return exceptionList;
+    }
+
+    public CtClass[] getParameters(Method method, ClassPool classPool) throws NotFoundException {
+        CtClass[] parameters = new CtClass[method.getParameters().size()];
+        int index = 0;
+        for (Parameter parameter : method.getParameters()) {
+            parameters[index] = classPool.get(parameter.getClassName());
+            index++;
+        }
+        return parameters;
+    }
+
+    public CtClass[] getExceptions(Method method, ClassPool classPool) throws NotFoundException {
+        CtClass[] exceptions = new CtClass[method.getExceptions().size()];
+        int index = 0;
+        for (Exception exception : method.getExceptions()) {
+            exceptions[index] = classPool.get(exception.getClassName());
+            index++;
+        }
+        return exceptions;
+    }
+
+
+    public CircuitBreaker getBreaker(Signature signature) {
+        CircuitBreaker circuitBreaker = null;
         if (frameworks.isFramework(signature.getAnnotation())) {
-            circuitBreaker = frameworks.getFramework(signature.getAnnotation()).getCircuitBreakers().get(0);
-        } else {
+            List<CircuitBreaker> cbs = frameworks.getFramework(signature.getAnnotation()).getCircuitBreakers();
+            outerLoop:
+            for (CircuitBreaker cb : cbs) {
+                for (Map.Entry<String, String> entry : cb.getToggle().getParameterMapping().entrySet()) {
+                    if (signature.getParameterByReturnType(entry.getValue()) == null) {
+                        continue outerLoop;
+                    }
+                }
+                circuitBreaker = cb;
+                break;
+            }
+        }
+        if (circuitBreaker == null) {
             circuitBreaker = circuitBreakers.getBreaker(signature.getReturnType());
         }
         return circuitBreaker;
@@ -201,13 +287,12 @@ public class Transformer implements ClassFileTransformer {
                     if (parameters != null) {
                         for (String parameter : parameters) {
                             Parameter param = new Parameter();
-                            Parameter value = new Parameter();
+                            param.setType(Parameter.Type.string);
                             param.setName(parameter);
-                            value.setClassName(annotation.getMemberValue(parameter).toString());
+                            param.setValue(annotation.getMemberValue(parameter).toString());
                             facetAnnotation.addParameter(param);
                         }
                     }
-                    ///annotation.getTypeName()
                     annotations.add(facetAnnotation);
                 }
             }

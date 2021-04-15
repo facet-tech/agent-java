@@ -1,5 +1,6 @@
 package run.facet.agent.java;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,8 @@ public class CircuitBreakers {
 
     private ReadWriteLock lock = new ReentrantReadWriteLock();
     private WebRequest webRequest;
+    private LogInitializer logInitializer;
+    private Logger logger;
 
     public CircuitBreakers() {
         circuitBreakers = new ArrayList<>();
@@ -26,22 +29,26 @@ public class CircuitBreakers {
     }
 
     @Autowired
-    private CircuitBreakers(WebRequest webRequest) {
+    private CircuitBreakers(WebRequest webRequest, LogInitializer logInitializer) {
+        this.logInitializer = logInitializer;
+        this.logger = logInitializer.getLogger();
         this.webRequest = webRequest;
         fetchCircuitBreakerList();
         timer = new Timer();
-        timer.schedule(new CircuitBreakerTimer(), cacheRefreshInterval,cacheRefreshInterval);
+        timer.schedule(new CircuitBreakerTimer(), cacheRefreshInterval, cacheRefreshInterval);
     }
 
     private void fetchCircuitBreakerList() {
-        List<CircuitBreaker> circuitBreakers = (List<CircuitBreaker>) (Object) webRequest.fetchConfigurationList(this.property, this.id,"attribute", CircuitBreaker.class);
-        Map<String, CircuitBreaker> circuitBreakerMap = createMap(circuitBreakers);
-        lock.writeLock().lock();
+
         try {
+            List<CircuitBreaker> circuitBreakers = (List<CircuitBreaker>) (Object) webRequest.fetchConfigurationList(this.property, this.id, "attribute", CircuitBreaker.class);
+            Map<String, CircuitBreaker> circuitBreakerMap = createMap(circuitBreakers);
+            lock.writeLock().lock();
             this.circuitBreakers = circuitBreakers;
             this.circuitBreakerMap = circuitBreakerMap;
-        } finally {
             lock.writeLock().unlock();
+        } catch (java.lang.Exception e) {
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -54,7 +61,7 @@ public class CircuitBreakers {
     }
 
     public CircuitBreaker getBreaker(String returnType) {
-        if(circuitBreakerMap.containsKey(returnType)) {
+        if (circuitBreakerMap.containsKey(returnType)) {
             return circuitBreakerMap.get(returnType);
         } else {
             return circuitBreakerMap.get("default");

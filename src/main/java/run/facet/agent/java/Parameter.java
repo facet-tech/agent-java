@@ -1,14 +1,24 @@
 package run.facet.agent.java;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Parameter {
     private String name;
     private String className;
-    private String type;
+    private Type type;
     private List<Parameter> values;
+    private String value;
     private int position;
+
+    public enum Type {
+        @JsonProperty("string")
+        string,
+        @JsonProperty("list")
+        list
+    }
 
     public Parameter() {
         values = new ArrayList<>();
@@ -30,13 +40,14 @@ public class Parameter {
         this.className = className;
     }
 
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
+
     public int getPosition() {
         return position;
     }
@@ -51,5 +62,17 @@ public class Parameter {
 
     public void setValues(List<Parameter> values) {
         this.values = values;
+    }
+
+    public void addValue(Parameter value) {
+        values.add(value);
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

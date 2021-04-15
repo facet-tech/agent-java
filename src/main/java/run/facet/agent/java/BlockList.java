@@ -1,5 +1,6 @@
 package run.facet.agent.java;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,11 +12,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class BlockList {
     private String id = "JAVA_PACKAGE_PREFIX~";
     private String property = "BLOCK_LIST~";
-    private static Map<String,String> blockList = new HashMap<>(){{
-        put("java","java");
-        put("sun","sun");
-        put("jdk","jdk");
-        put("org","org");
+    private static Map<String, String> blockList = new HashMap<>() {{
+        put("java", "java");
+        put("sun", "sun");
+        put("jdk", "jdk");
+        put("org", "org");
     }};
 
     private Timer timer;
@@ -23,29 +24,35 @@ public class BlockList {
 
     private ReadWriteLock lock = new ReentrantReadWriteLock();
     private WebRequest webRequest;
+    private LogInitializer logInitializer;
+    private Logger logger;
 
     @Autowired
-    private BlockList(WebRequest webRequest) {
+    private BlockList(WebRequest webRequest, LogInitializer logInitializer) {
+        this.logInitializer = logInitializer;
+        this.logger = logInitializer.getLogger();
         this.webRequest = webRequest;
         fetchBlockList();
         timer = new Timer(true);
-        timer.schedule(new BlockListTimer(), blockListRefreshIntervalInSeconds,blockListRefreshIntervalInSeconds);
+        timer.schedule(new BlockListTimer(), blockListRefreshIntervalInSeconds, blockListRefreshIntervalInSeconds);
     }
 
     private void fetchBlockList() {
-        Configuration configuration = webRequest.fetchConfiguration(this.property,this.id);
-        Map<String,String> newBlockList = convertConfigurationToBlockList(configuration);
-        lock.writeLock().lock();
         try {
+            Configuration configuration = webRequest.fetchConfiguration(this.property, this.id);
+            Map<String, String> newBlockList = convertConfigurationToBlockList(configuration);
+            lock.writeLock().lock();
             blockList = newBlockList;
-        } finally {
             lock.writeLock().unlock();
+        } catch (java.lang.Exception e) {
+            logger.error(e.getMessage(), e);
         }
     }
 
-    public Map<String,String> convertConfigurationToBlockList(Configuration configuration) {
-        Map<String,Object> attribute = configuration.getAttribute();
-        Map<String,String> blockList = new HashMap<>();
+
+    public Map<String, String> convertConfigurationToBlockList(Configuration configuration) {
+        Map<String, Object> attribute = configuration.getAttribute();
+        Map<String, String> blockList = new HashMap<>();
         for (String item : (List<String>) attribute.get("signature")) {
             blockList.put(item, item);
         }
@@ -79,5 +86,5 @@ public class BlockList {
         public void run() {
             fetchBlockList();
         }
-    }    
+    }
 }

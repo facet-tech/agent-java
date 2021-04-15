@@ -6,10 +6,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import java.lang.instrument.Instrumentation;
 
 public class Agent {
-
     public static void premain(String args, Instrumentation instrumentation) {
-        System.out.println("Possible Facets");
-        System.out.println("---------------");
         try {
             ApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
             Transformer transformer = ctx.getBean(Transformer.class);

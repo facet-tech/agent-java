@@ -1,5 +1,6 @@
 package run.facet.agent.java;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,50 +19,62 @@ public class Facets {
 
     private Toggles toggles;
     private WebRequest webRequest;
+    private LogInitializer logInitializer;
+    private Logger logger;
 
     //TODO fix race condition where facets could be overwritten by the timer during parsing and vice versa.
     @Autowired
-    public Facets(App app, WebRequest webRequest, Toggles toggles) {
+    public Facets(App app, WebRequest webRequest, Toggles toggles, LogInitializer logInitializer) {
+        this.logInitializer = logInitializer;
+        this.logger = logInitializer.getLogger();
         this.webRequest = webRequest;
         this.app = app;
         this.facetMap = new HashMap<>();
         this.toggles = toggles;
         fetchFacets();
         timer = new Timer(true);
-        timer.schedule(new FacetTimer(), refreshInterval,refreshInterval);
+        timer.schedule(new FacetTimer(), refreshInterval, refreshInterval);
     }
 
     private void fetchFacets() {
-        List<Facet> facets = webRequest.fetchFacet(app);lock.writeLock().lock();
         try {
-            for (Facet facet : facets) {
-                updateFacetMaps(facet);
-            }
+            List<Facet> facets = webRequest.fetchFacet();
+            Map<String, Facet> facetMap = updateFacetMaps(facets);
+            lock.writeLock().lock();
             this.facets = facets;
-        } finally {
+            this.facetMap = facetMap;
             lock.writeLock().unlock();
+        } catch (java.lang.Exception e) {
+            logger.error(e.getMessage(), e);
         }
     }
 
-    private void updateFacetMaps(Facet facet) {
-        facetMap.put(facet.getFullyQualifiedName(), facet);
+    private Map<String, Facet> updateFacetMaps(List<Facet> facets) {
+        Map<String, Facet> facetMap = new HashMap<>();
+        for (Facet facet : facets) {
+            facetMap.put(facet.getFullyQualifiedName(), facet);
+            updateToggles(facet);
+        }
+        return facetMap;
+    }
+
+    public void updateToggles(Facet facet) {
         for (Signature signature : facet.getSignature()) {
-            toggles.updateToggle(facet.getFullyQualifiedName(),signature.getSignature(),signature.isEnabled());
+            toggles.updateToggle(facet.getFullyQualifiedName(), signature.getSignature(), signature.isEnabled());
         }
     }
 
     public void add(Facet facet) {
-        lock.writeLock().lock();
-        try {
-            //TODO add support for facets changes
-            if (!contains(facet)) {
-                this.facets.add(facet);
-                updateFacetMaps(facet);
-                webRequest.createFacet(facet);
-            }
-        } finally {
+        //TODO add support for facets changes
+        if (!contains(facet)) {
+            lock.writeLock().lock();
+            this.facets.add(facet);
+            facetMap.put(facet.getFullyQualifiedName(), facet);
+            updateToggles(facet);
             lock.writeLock().unlock();
+            webRequest.createFacet(facet);
         }
+
     }
 
     public boolean contains(Facet facet) {

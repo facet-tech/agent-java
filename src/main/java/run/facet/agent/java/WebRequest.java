@@ -6,10 +6,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.lang.Exception;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -25,32 +25,34 @@ public class WebRequest {
     private static ExecutorService threadPool = Executors.newFixedThreadPool(20, new MyThreadFactory());
     private final String BaseUrl = "https://api.facet.run/";
     private App app;
-
+    private static Logger logger;
+    private LogInitializer logInitializer;
 
     @Autowired
-    public WebRequest(App app) {
+    public WebRequest(App app, LogInitializer logInitializer) {
+        this.logInitializer = logInitializer;
+        this.logger = logInitializer.getLogger();
         this.app = app;
     }
 
-
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Performing some shutdown cleanup...");
+            logger.debug("Performing some shutdown cleanup...");
             threadPool.shutdown();
             while (true) {
                 try {
-                    System.out.println("Waiting for the service to terminate...");
+                    logger.debug("Waiting for the service to terminate...");
                     if (threadPool.awaitTermination(30, TimeUnit.SECONDS)) {
                         break;
                     }
                 } catch (InterruptedException e) {
                 }
             }
-            System.out.println("Done cleaning");
+            logger.debug("Done cleaning");
         }));
     }
 
-    public List<Facet> fetchFacet(App apfp) {
+    public List<Facet> fetchFacet() {
         List<Facet> facetList = null;
         try {
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -66,11 +68,8 @@ public class WebRequest {
             ObjectMapper objectMapper = new ObjectMapper();
             facetList = objectMapper.readValue(response.body(), new TypeReference<List<Facet>>() {
             });
-        } catch (Exception e) {
-            System.out.println(e);
         } catch (Throwable e) {
-            System.out.println(e);
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
         } finally {
             return facetList;
         }
@@ -93,11 +92,8 @@ public class WebRequest {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             ObjectMapper objectMapper = new ObjectMapper();
             createdApp = objectMapper.readValue(response.body(), App.class);
-        } catch (Exception e) {
-            System.out.println(e);
         } catch (Throwable e) {
-            System.out.println(e);
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
         } finally {
             return createdApp;
         }
@@ -118,11 +114,8 @@ public class WebRequest {
                     .timeout(Duration.ofMillis(10000))
                     .build();
             CompletableFuture<HttpResponse<String>> response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-        } catch (Exception e) {
-            System.out.println(e);
         } catch (Throwable e) {
-            System.out.println(e);
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
         }
     }
 
@@ -140,11 +133,8 @@ public class WebRequest {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             ObjectMapper objectMapper = new ObjectMapper();
             configuration = objectMapper.readValue(response.body(), Configuration.class);
-        } catch (Exception e) {
-            System.out.println(e);
         } catch (Throwable e) {
-            System.out.println(e);
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
         }
         return configuration;
     }
@@ -165,11 +155,8 @@ public class WebRequest {
             String responseBody = response.body();
             JsonNode productNode = new ObjectMapper().readTree(responseBody);
             object = objectMapper.readValue(productNode.get(field).toString(), clazz);
-        } catch (Exception e) {
-            e.printStackTrace();
         } catch (Throwable e) {
-            System.out.println(e);
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
         }
         return object;
     }
@@ -191,11 +178,8 @@ public class WebRequest {
             JsonNode rootNode = new ObjectMapper().readTree(responseBody);
             CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, clazz);
             objectList = objectMapper.readValue(rootNode.get(field).toString(), listType);
-        } catch (Exception e) {
-            e.printStackTrace();
         } catch (Throwable e) {
-            System.out.println(e);
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
         }
         return objectList;
     }
@@ -214,11 +198,8 @@ public class WebRequest {
             ObjectMapper objectMapper = new ObjectMapper();
             configurations = objectMapper.readValue(response.body(), new TypeReference<List<Configuration>>() {
             });
-        } catch (Exception e) {
-            System.out.println(e);
         } catch (Throwable e) {
-            System.out.println(e);
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
         }
         return configurations;
     }

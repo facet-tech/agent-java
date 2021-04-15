@@ -1,5 +1,7 @@
 package run.facet.agent.java;
 
+import javassist.bytecode.AnnotationsAttribute;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,21 @@ public class Annotation {
 
     public String getVisibility() {
         return visibility;
+    }
+
+    public String getVisibilityString(String visibility) {
+        String visibilityString;
+        switch (visibility) {
+            case "run.facet.dependencies.javassist.bytecode.AnnotationsAttribute.visibleTag":
+                visibilityString = AnnotationsAttribute.visibleTag;
+                break;
+            case "run.facet.dependencies.javassist.bytecode.AccessFlag.Modifier.invisibleTag":
+                visibilityString = AnnotationsAttribute.invisibleTag;
+                break;
+            default:
+                visibilityString = null;
+        }
+        return visibilityString;
     }
 
     public void setVisibility(String visibility) {
