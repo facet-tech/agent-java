@@ -1,4 +1,5 @@
 # Facet java-agent
+[![Github](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)
 
 > The Facet Java SDK can be used with the Spring Framework. The Java-Agent allows **enabling** and **disabling** methods and endpoints in your application. When a method is disabled, a default value is returned, which is usually the minimum value of the class.
 
