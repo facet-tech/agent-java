@@ -9,7 +9,7 @@ plugins {
 
 group = "run.facet.agent.java"
 archivesBaseName = "facet-agent"
-version = '0.0.9'
+version = '0.0.10'
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
@@ -46,7 +46,10 @@ shadowJar {
     ["com.fasterxml", "org.springframework", "javassist", "org.apache", "org.yaml", "org.aopalliance"].each {
         relocate(it, "$shadedPackagePrefix$it")
     }
+    //Needed for for log4j logging
+    mergeServiceFiles()
     transform(com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer)
+
 }
 
 java {
