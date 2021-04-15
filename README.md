@@ -39,7 +39,7 @@ Facet captures data by using an SDK within your application’s runtime. Facet-a
 Download and add the JAR in the VM options, prior to starting your server.
 `-javaagent:{JAR_PATH_VARIABLE}`
 
-Replace JAR_PATH_VARIABLE with the path of the JAR. This will inject the Facet agent into the application. Last but not least create a facet.yml file in your project directory. The file contains your workspaceId, your project's name and your environment. You can retrieve your workspaceId by login in into the [dashboard](http://app.facet.run/).
+Replace JAR_PATH_VARIABLE with the path of the JAR. This will inject the Facet agent into the application. Last but not least create a facet.yml file in your project directory. The file contains your workspaceId, your project's name and your environment. You can retrieve your `workspaceId` and `apiKey`  by logging in into the [dashboard](http://app.facet.run/).
 ```
 workspaceId: WORKSPACE~ID
 name: My-Application
