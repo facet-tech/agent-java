@@ -8,7 +8,7 @@ Thank you for contributing to the project! Please read our [code of conduct](./C
 - Circuit Braker (CB): Custom logic to stop method execution
 - Framework = custom implementation of a circuit braker.
 - Precedence = Order of CB. This is crucial when more than 1 CB is in effect.
-- Response => search for the method to that parameter type `javax.servlet.http.HttpServletResponse`
+- Response = search for the method to that parameter type `javax.servlet.http.HttpServletResponse`
 
 Note that CB triggers `@ExceptionHandler`  everytime a method is turned off.
 
