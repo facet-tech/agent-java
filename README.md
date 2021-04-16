@@ -63,7 +63,7 @@ Open an [issue](https://github.com/facet-tech/agent-java/issues) or contact the 
 
 ## Compatibility
 ```
-Java:    11 or greater
+JDK:    11 or greater
 Spring:  4.3 or greater
 ```
 
