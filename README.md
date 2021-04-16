@@ -1,23 +1,7 @@
 # Facet java-agent
 [![Github](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)
 
-> The Facet Java SDK can be used with the Spring Framework. The Java-Agent allows **enabling** and **disabling** methods and endpoints in your application. When a method is disabled, a default value is returned, which is usually the minimum value of the class.
-
-This is how values are mapped:
-```
-RETURN_TYPE -> VALUE (if method switched OFF)
-
-byte    ->  Byte.MIN_VALUE
-short   ->  Short.MIN_VALUE
-int     -> Integer.MIN_VALUE
-long    -> Long.MIN_VALUE
-float   -> Float.MIN_VALUE
-double  -> Double.MIN_VALUE
-char    -> Character.MIN_VALUE
-boolean -> false
-void    -> void
-other   -> null
-```
+> The Facet Java SDK can be used with the Spring Framework. The Java-Agent allows **enabling** and **disabling** methods and endpoints in yourapplication. When a method is disabled, a default value is returned, which is usually the minimum value of the class.
 
 # Introduction
 
@@ -49,13 +33,36 @@ apiKey: API_KEY
 
 Navigate into the dashboard. Right after you login, select "Applications" -> "My-Application". You should be able to see all the live methods and endpoints, alongside with a checkbox allowing their enablement and disablement. You should now be able to enable/disable methods and endpoints throughout the application.
 
+## Default values of a disabled method
+
+This is how values are mapped:
+```
+RETURN_TYPE -> VALUE (if method switched OFF)
+
+byte    ->  Byte.MIN_VALUE
+short   ->  Short.MIN_VALUE
+int     -> Integer.MIN_VALUE
+long    -> Long.MIN_VALUE
+float   -> Float.MIN_VALUE
+double  -> Double.MIN_VALUE
+char    -> Character.MIN_VALUE
+boolean -> false
+void    -> void
+other   -> null
+```
+
 # Contributing
 
-Thank you for contributing to the project! Please read our [code of conduct](./CODE_OF_CONDUCT.md) before you get started with the project setup.
+Thank you for contributing to the project! Please read the [CONTRIBUTING.md](./CONTRIBUTING.md) file to get started with the Facet Java-Agent project!
 
 # Support
 
 Open an [issue](https://github.com/facet-tech/agent-java/issues) or contact the team through `engineering@facet.run`.
+
+## Compatibility
+```
+JVM: Java 11 or higher
+```
 
 # License
 [MIT](./LICENSE)
