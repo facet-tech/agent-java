@@ -12,8 +12,6 @@ Thank you for contributing to the project! Please read our [code of conduct](./C
 
 Note that CB triggers `@ExceptionHandler`  everytime a method is turned off.
 
-(disable JMX @IntelliJ)
-
 Current Payload is stored in the DB:
 
 ```
