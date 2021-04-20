@@ -1,5 +1,10 @@
 # Facet java-agent
+<div>
+    <img width="150" src="./images/facet_logo_combo.svg">
+</div>
+
 **Toggle methods and endpoints instantly**
+
 
 [![Github](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)
 
