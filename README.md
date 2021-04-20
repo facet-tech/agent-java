@@ -32,10 +32,10 @@ java -javaagent:/full/path/to/facet.jar -jar /full/path/to/application
 2. Create a `facet.yml` file located in the same directory as the `facet-agent.jar` from step 1.
 
 ```
-workspaceId: {WORKSPACE_ID}
-name: {APPLICAITON_NAME}
-environment: {ENVIRONMENT}
-apiKey: {API_KEY}
+workspaceId:    {WORKSPACE_ID}
+name:           {APPLICAITON_NAME}
+environment:    {ENVIRONMENT}
+apiKey:         {API_KEY}
 ```
 
 `workspaceId` is retrieved from the [dashboard](http://app.facet.run/)
