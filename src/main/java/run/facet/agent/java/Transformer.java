@@ -10,6 +10,7 @@ import javassist.bytecode.annotation.MemberValue;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import run.facet.agent.java.exception.InstallException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,7 +19,6 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.ProtectionDomain;
@@ -44,7 +44,6 @@ public class Transformer implements ClassFileTransformer {
         this.logger = logInitializer.getLogger();
         this.app = app;
         this.webRequest = webRequest;
-        webRequest.createApp((App) properties.getProperty(App.class));
         this.circuitBreakers = circuitBreakers;
         this.blockList = blockList;
         this.toggles = toggles;
@@ -90,7 +89,7 @@ public class Transformer implements ClassFileTransformer {
             fos.write(classToWrite);
         } catch (IOException e) {
             logger.error(e.getStackTrace());
-        } catch (URISyntaxException e) {
+        } catch (InstallException e) {
             logger.error(e.getStackTrace());
         } finally {
             try {

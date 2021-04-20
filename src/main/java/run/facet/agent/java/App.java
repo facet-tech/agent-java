@@ -2,8 +2,8 @@ package run.facet.agent.java;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
+import org.springframework.util.StringUtils;
+import run.facet.agent.java.exception.InstallException;
 
 @Component
 public class App {
@@ -16,12 +16,15 @@ public class App {
     private String Id;
 
     @Autowired
-    public App(Properties properties) throws IOException {
+    public App(Properties properties) throws InstallException {
         App app = (App) properties.getProperty(App.class);
         this.name = app.name;
         this.environment = app.environment;
         this.workspaceId = app.workspaceId;
         this.apiKey = app.apiKey;
+        if(!StringUtils.hasLength(this.name) || !StringUtils.hasLength(this.environment) || !StringUtils.hasLength(this.workspaceId)|| !StringUtils.hasLength(this.apiKey)) {
+            throw new InstallException("The following properties are required in file=[" + properties.getFacetYamlPath()+ "],properties=[name, environment, workspaceId, apiKey]");
+        }
     }
 
     public App() {

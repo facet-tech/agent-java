@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import run.facet.agent.java.exception.InstallException;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -27,12 +28,15 @@ public class WebRequest {
     private App app;
     private static Logger logger;
     private LogInitializer logInitializer;
+    private Properties properties;
 
     @Autowired
-    public WebRequest(App app, LogInitializer logInitializer) {
+    public WebRequest(App app, LogInitializer logInitializer, Properties properties) throws InstallException {
         this.logInitializer = logInitializer;
         this.logger = logInitializer.getLogger();
         this.app = app;
+        this.properties = properties;
+        createApp();
     }
 
     static {
@@ -52,6 +56,15 @@ public class WebRequest {
         }));
     }
 
+    public void handleAuthenticationError(HttpResponse<String> response) throws InstallException {
+        String facetYamlPath = "";
+        try {facetYamlPath = properties.getFacetYamlPath();} catch (java.lang.Exception e){}
+        if(response.statusCode() == 401) {
+            throw new InstallException("Authentication error, verify your apiKey is correctly set in facet.yaml=[" + facetYamlPath + "]");
+        }
+
+    }
+
     public List<Facet> fetchFacet() {
         List<Facet> facetList = null;
         try {
@@ -65,9 +78,9 @@ public class WebRequest {
                     .timeout(Duration.ofMillis(10000))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            handleAuthenticationError(response);
             ObjectMapper objectMapper = new ObjectMapper();
-            facetList = objectMapper.readValue(response.body(), new TypeReference<List<Facet>>() {
-            });
+            facetList = objectMapper.readValue(response.body(), new TypeReference<List<Facet>>() {});
         } catch (Throwable e) {
             logger.error(e.getMessage(),e);
         } finally {
@@ -76,7 +89,7 @@ public class WebRequest {
 
     }
 
-    public App createApp(App app) {
+    public App createApp() throws InstallException {
         App createdApp = null;
         try {
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -90,13 +103,15 @@ public class WebRequest {
                     .timeout(Duration.ofMillis(10000))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            handleAuthenticationError(response);
             ObjectMapper objectMapper = new ObjectMapper();
             createdApp = objectMapper.readValue(response.body(), App.class);
-        } catch (Throwable e) {
-            logger.error(e.getMessage(),e);
-        } finally {
-            return createdApp;
+        } catch (InstallException e) {
+            throw e;
+        } catch (java.lang.Exception e) {
+            throw new InstallException(e);
         }
+        return createdApp;
     }
 
     public void createFacet(Facet facetDTO) {
@@ -131,6 +146,7 @@ public class WebRequest {
                     .timeout(Duration.ofMillis(10000))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            handleAuthenticationError(response);
             ObjectMapper objectMapper = new ObjectMapper();
             configuration = objectMapper.readValue(response.body(), Configuration.class);
         } catch (Throwable e) {
@@ -151,6 +167,7 @@ public class WebRequest {
                     .timeout(Duration.ofMillis(10000))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            handleAuthenticationError(response);
             ObjectMapper objectMapper = new ObjectMapper();
             String responseBody = response.body();
             JsonNode productNode = new ObjectMapper().readTree(responseBody);
@@ -173,6 +190,7 @@ public class WebRequest {
                     .timeout(Duration.ofMillis(10000))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            handleAuthenticationError(response);
             ObjectMapper objectMapper = new ObjectMapper();
             String responseBody = response.body();
             JsonNode rootNode = new ObjectMapper().readTree(responseBody);
@@ -195,9 +213,9 @@ public class WebRequest {
                     .timeout(Duration.ofMillis(10000))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            handleAuthenticationError(response);
             ObjectMapper objectMapper = new ObjectMapper();
-            configurations = objectMapper.readValue(response.body(), new TypeReference<List<Configuration>>() {
-            });
+            configurations = objectMapper.readValue(response.body(), new TypeReference<List<Configuration>>() {});
         } catch (Throwable e) {
             logger.error(e.getMessage(),e);
         }

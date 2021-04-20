@@ -10,7 +10,7 @@ import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.net.URISyntaxException;
+import run.facet.agent.java.exception.InstallException;
 
 @Component
 public class LogInitializer {
@@ -19,7 +19,7 @@ public class LogInitializer {
     private Logger logger;
 
     @Autowired
-    public LogInitializer(Properties properties) throws URISyntaxException {
+    public LogInitializer(Properties properties) throws InstallException {
         ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
         LoggerContext loggerContext = new LoggerContext("facet");
         builder.setLoggerContext(loggerContext);
