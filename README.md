@@ -1,5 +1,5 @@
 # Facet java-agent
-**Enable & disable methods and endpoints instantly**
+**Toggle methods and endpoints instantly**
 
 [![Github](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)
 
