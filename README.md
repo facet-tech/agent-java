@@ -1,13 +1,13 @@
-# Facet java-agent
-<div>
-    <img width="150" src="./images/facet_logo_combo.svg">
+# Overview
+<div style="text-align: center">
+    <img width="40%" src="./images/facet_logo_combo.svg">
 </div>
 
 **Toggle methods and endpoints instantly**
 
 
 [![Github](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)
-
+![License](https://img.shields.io/github/license/facet-tech/agent-java)
 
 > The Facet Java Agent uses bytecode instrumentation to dynamically enable and disable methods at runtime within your application.
 > This is achieved by transferring control back to the caller of the method via injected return statements.
