@@ -1,6 +1,6 @@
 # Overview
-<div style="text-align: center">
-    <img width="40%" src="./images/facet_logo_combo.svg">
+<div align="center">
+    <img alt="Facet logo" width="40%" src="/images/facet_logo_combo.svg">
 </div>
 
 **Toggle methods and endpoints instantly**
