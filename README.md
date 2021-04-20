@@ -3,7 +3,7 @@
     <img alt="Facet logo" width="40%" src="/images/facet_logo_combo.svg">
 <br/>
 <br/>
-**Toggle methods and endpoints instantly**
+<b>Toggle methods and endpoints instantly</b>
 </div>
 
 [![Github](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)
