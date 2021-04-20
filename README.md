@@ -1,8 +1,14 @@
-# Facet java-agent
-**Toggle methods and endpoints instantly**
+# Overview
+<div align="center">
+    <img alt="Facet logo" width="40%" src="/images/facet_logo_combo.svg">
+<br/>
+<b>Toggle methods and endpoints instantly</b>
+</div>
+<br/>
+<br/>
 
 [![Github](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)
-
+![License](https://img.shields.io/github/license/facet-tech/agent-java)
 
 > The Facet Java Agent uses bytecode instrumentation to dynamically enable and disable methods at runtime within your application.
 > This is achieved by transferring control back to the caller of the method via injected return statements.
@@ -26,10 +32,10 @@ java -javaagent:/full/path/to/facet.jar -jar /full/path/to/application
 2. Create a `facet.yml` file located in the same directory as the `facet-agent.jar` from step 1.
 
 ```
-workspaceId: {WORKSPACE_ID}
-name: {APPLICAITON_NAME}
-environment: {ENVIRONMENT}
-apiKey: {API_KEY}
+workspaceId:    {WORKSPACE_ID}
+name:           {APPLICAITON_NAME}
+environment:    {ENVIRONMENT}
+apiKey:         {API_KEY}
 ```
 
 `workspaceId` is retrieved from the [dashboard](http://app.facet.run/)
