@@ -78,7 +78,7 @@ Circuit breakers are stored in the directory `db/configuration/circuit_breakers`
 
 ## Frameworks
 
-Frameworks are circuit breakers which detect annotations, interfaces, and inheritance to customize the return value (response) creating support for HTTP requests and endpoints.  If a framework is detected, the following return values will be used instead of the default circuit breaker mapping.
+Frameworks are a combination circuit breakers which detect annotations, interfaces, and inheritance to customize the return value (response) creating support for HTTP requests and endpoints.  If a framework is detected, the following return values will be used instead of the default circuit breaker mapping.
 
 Currently, we support Spring Framework version 3.0.x and higher via the following spring annotations.
 
