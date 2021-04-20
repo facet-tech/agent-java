@@ -41,9 +41,7 @@ apiKey: {API_KEY}
 `environment` is the environment of your application deployment
 
 ## Troubleshooting
-1. If you encounter `javax.management.InstanceAlreadyExistsException` while running locally *disable* JMX integration in your IDE.
-
-
+1. If you encounter `javax.management.InstanceAlreadyExistsException` while running locally *disable* JMX integration in your IDE
 
 ## Usage Cases
 We are in the early stages of product development and can envision several use cases for this type of solution.   
@@ -54,13 +52,13 @@ We are in the early stages of product development and can envision several use c
 
 We would love to hear any feedback (positive and negative) or other use case ideas.  The future direction of facet will be directly impacted by YOUR feedback!
 
-## Contributing
-
-Thank you for contributing to the project! Please read the [CONTRIBUTING.md](./CONTRIBUTING.md) file to get started with the Facet Java-Agent project!
-
 ## Feedback and Support
 
 Open an [issue](https://github.com/facet-tech/agent-java/issues) or send an email at `engineering@facet.run`.
+
+## Contributing
+
+Thank you for contributing to the project! Please read the [CONTRIBUTING.md](./CONTRIBUTING.md) file to get started with the Facet Java-Agent project!
 
 ## Compatibility
 Java:  JVM runtime 11 or higher is required, however, your source and target can be compiled to any java version.
