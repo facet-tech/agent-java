@@ -42,7 +42,7 @@ org.springframework.web.bind.annotation.PatchMapping    javax.servlet.http.HttpS
 ```
 Frameworks are data driven and will soon be configurable.
 
-Frameworks are stored in this [directory](db/configuration/frameworks) `db/configuration/configuration/frameworks`.
+Frameworks are stored in this [directory](db/configuration/frameworks).
 
 ## Block List
 A list of packages and classes not processed preventing method and endpoint toggle overload.
