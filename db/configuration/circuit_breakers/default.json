@@ -1,0 +1,86 @@
+{
+  "attribute": [
+    {
+      "returnType": "void",
+      "toggle": {
+        "method": {
+          "body": "if(!${toggle}) {return;}"
+        }
+      }
+    },
+    {
+      "returnType": "byte",
+      "toggle": {
+        "method": {
+          "body": "if(!${toggle}) {return Byte.MIN_VALUE;}"
+        }
+      }
+    },
+    {
+      "returnType": "short",
+      "toggle": {
+        "method": {
+          "body": "if(!${toggle}) {return Short.MIN_VALUE;}"
+        }
+      }
+    },
+    {
+      "returnType": "int",
+      "toggle": {
+        "method": {
+          "body": "if(!${toggle}) {return Integer.MIN_VALUE;}"
+        }
+      }
+    },
+    {
+      "returnType": "long",
+      "toggle": {
+        "method": {
+          "body": "if(!${toggle}) {return Long.MIN_VALUE;}"
+        }
+      }
+    },
+    {
+      "returnType": "float",
+      "toggle": {
+        "method": {
+          "body": "if(!${toggle}) {return Float.MIN_VALUE;}"
+        }
+      }
+    },
+    {
+      "returnType": "double",
+      "toggle": {
+        "method": {
+          "body": "if(!${toggle}) {return Double.MIN_VALUE;}"
+        }
+      }
+    },
+    {
+      "returnType": "boolean",
+      "toggle": {
+        "method": {
+          "body": "if(!${toggle}) {return false;}"
+        }
+      }
+    },
+    {
+      "returnType": "char",
+      "toggle": {
+        "method": {
+          "body": "if(!${toggle}) {return Character.MIN_VALUE;}"
+        }
+      }
+    },
+    {
+      "returnType": "default",
+      "toggle": {
+        "method": {
+          "body": "if(!${toggle}) {return null;}"
+        }
+      }
+    }
+  ],
+  "id": "JAVA~1",
+  "property": "CIRCUIT_BREAKER~"
+}

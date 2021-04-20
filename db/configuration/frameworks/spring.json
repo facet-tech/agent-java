@@ -1,0 +1,235 @@
+{
+  "attribute": {
+    "circuitBreakers": [
+      {
+        "precedence": 1,
+        "toggle": {
+          "method": {
+            "body": "if(!${toggle}) {try { ${response}.sendError(403,\"Access Denied\");  } catch (Exception e) { } return null;}"
+          },
+          "parameterMapping": {
+            "response": "javax.servlet.http.HttpServletResponse"
+          }
+        }
+      },
+      {
+        "methodsToCreate": [
+          {
+            "annotations": [
+              {
+                "className": "org.springframework.web.bind.annotation.ExceptionHandler",
+                "parameters": [
+                  {
+                    "className": "run.facet.dependencies.javassist.bytecode.annotation.ArrayMemberValue",
+                    "name": "value",
+                    "type": "list",
+                    "values": [
+                      {
+                        "className": "run.facet.dependencies.javassist.bytecode.annotation.ClassMemberValue",
+                        "type": "string",
+                        "value": "run.facet.agent.java.CircuitBreakerException"
+                      }
+                    ]
+                  }
+                ],
+                "visibility": "run.facet.dependencies.javassist.bytecode.AnnotationsAttribute.visibleTag"
+              }
+            ],
+            "body": "try { $3.sendError(403,\"Access Denied\"); } catch (Exception e) {}",
+            "modifier": "run.facet.dependencies.javassist.bytecode.AccessFlag.Modifier.PUBLIC",
+            "name": "handleFacetRunCircuitBreakerException",
+            "parameters": [
+              {
+                "className": "run.facet.agent.java.CircuitBreakerException"
+              },
+              {
+                "className": "javax.servlet.http.HttpServletRequest"
+              },
+              {
+                "className": "javax.servlet.http.HttpServletResponse"
+              }
+            ],
+            "returnType": "run.facet.dependencies.javassist.CtClass.voidType"
+          }
+        ],
+        "precedence": 2,
+        "toggle": {
+          "method": {
+            "body": "if(!${toggle}) {throw new run.facet.agent.java.CircuitBreakerException();}",
+            "exceptions": [
+              {
+                "className": "run.facet.agent.java.CircuitBreakerException"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "name": "Spring",
+    "sensors": [
+      {
+        "annotations": [
+          {
+            "className": "org.springframework.web.bind.annotation.RequestMapping",
+            "parameters": [
+              {
+                "name": "consumes"
+              },
+              {
+                "name": "headers"
+              },
+              {
+                "name": "name"
+              },
+              {
+                "name": "params"
+              },
+              {
+                "name": "path"
+              },
+              {
+                "name": "produces"
+              },
+              {
+                "name": "value"
+              }
+            ]
+          },
+          {
+            "className": "org.springframework.web.bind.annotation.GetMapping",
+            "parameters": [
+              {
+                "name": "consumes"
+              },
+              {
+                "name": "headers"
+              },
+              {
+                "name": "name"
+              },
+              {
+                "name": "params"
+              },
+              {
+                "name": "path"
+              },
+              {
+                "name": "produces"
+              },
+              {
+                "name": "value"
+              }
+            ]
+          },
+          {
+            "className": "org.springframework.web.bind.annotation.PostMapping",
+            "parameters": [
+              {
+                "name": "consumes"
+              },
+              {
+                "name": "headers"
+              },
+              {
+                "name": "name"
+              },
+              {
+                "name": "params"
+              },
+              {
+                "name": "path"
+              },
+              {
+                "name": "produces"
+              },
+              {
+                "name": "value"
+              }
+            ]
+          },
+          {
+            "className": "org.springframework.web.bind.annotation.PutMapping",
+            "parameters": [
+              {
+                "name": "consumes"
+              },
+              {
+                "name": "headers"
+              },
+              {
+                "name": "name"
+              },
+              {
+                "name": "params"
+              },
+              {
+                "name": "path"
+              },
+              {
+                "name": "produces"
+              },
+              {
+                "name": "value"
+              }
+            ]
+          },
+          {
+            "className": "org.springframework.web.bind.annotation.DeleteMapping",
+            "parameters": [
+              {
+                "name": "consumes"
+              },
+              {
+                "name": "headers"
+              },
+              {
+                "name": "name"
+              },
+              {
+                "name": "params"
+              },
+              {
+                "name": "path"
+              },
+              {
+                "name": "produces"
+              },
+              {
+                "name": "value"
+              }
+            ]
+          },
+          {
+            "className": "org.springframework.web.bind.annotation.PatchMapping",
+            "parameters": [
+              {
+                "name": "consumes"
+              },
+              {
+                "name": "headers"
+              },
+              {
+                "name": "name"
+              },
+              {
+                "name": "params"
+              },
+              {
+                "name": "path"
+              },
+              {
+                "name": "produces"
+              },
+              {
+                "name": "value"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "version": ""
+  },
+  "id": "JAVA~1",
+  "property": "FRAMEWORK~"
+}
