@@ -9,7 +9,7 @@ plugins {
 
 group = "run.facet.agent.java"
 archivesBaseName = "facet-agent"
-version = '0.0.13'
+version = 'master-SNAPSHOT'
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
