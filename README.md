@@ -58,6 +58,10 @@ We are in the early stages of product development and can envision several use c
 
 We would love to hear any feedback (positive and negative) or other use case ideas.  The future direction of facet will be directly impacted by YOUR feedback!
 
+## Feedback and Support
+
+Open an [issue](https://github.com/facet-tech/agent-java/issues) or send an email at `engineering@facet.run`.
+
 ## Circuit Breakers
 
 Method toggles are achieved by stopping method execution and transferring control back to the caller via injected return statements called circuit breakers.  Below are the default return values for method return types.
@@ -118,10 +122,6 @@ Run the above command from the project root directory to build the java agent:
 The Java agent requires JDK 11 or higher to build; your JAVA_HOME must be set to this JDK version.
 
 After building, Java agent artifacts are located in the directory: `build/generated/libs/`
-
-## Feedback and Support
-
-Open an [issue](https://github.com/facet-tech/agent-java/issues) or send an email at `engineering@facet.run`.
 
 ## Contributing
 
