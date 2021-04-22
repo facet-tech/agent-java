@@ -3,8 +3,8 @@
     <a href='https://github.com/facet-tech/agent-java'>
         <img alt="Facet logo" width="40%" src="/images/facet_logo_combo.svg">
         <br/>
-        <b>Toggle methods and endpoints instantly</b>
     </a>
+    <b>Toggle methods and endpoints instantly</b>
 </div>
 <br/>
 <br/>
