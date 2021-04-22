@@ -112,7 +112,7 @@ See [block list.](db/configuration/block_list/default.json)
 
 Block lists are data driven and will soon be configurable.
 
-Block lists are stored in the directory `db/configuration/circuit_breakers`.
+Block lists are stored in this [directory](https://github.com/facet-tech/agent-java/tree/main/db/configuration/circuit_breakers).
 
 ## Building
 
