@@ -14,7 +14,7 @@
 
 > The Facet Java Agent uses bytecode instrumentation to dynamically enable and disable methods at runtime within your application.
 > This is achieved by transferring control back to the caller of the method via injected return statements.
-> After integration you can toggle methods and endpoints in realtime without modifying or restarting you application.
+> After integration, you can toggle methods and endpoints in realtime without modifying or restarting you application.
 
 ## Download
 The facet agent jar can be downloaded from [maven central](https://search.maven.org/artifact/run.facet.agent.java/facet-agent).
@@ -52,14 +52,14 @@ apiKey:         {API_KEY}
 1. If you encounter `javax.management.InstanceAlreadyExistsException` while running locally *disable* JMX integration in your IDE
 
 ## Usage Cases
-We are in the early stages of product development and can envision several use cases for this type of solution.   
+
 1. Endpoint toggles - disable or reroute endpoints on the fly for beta features or when application and performance issues arise.
 2. Chaos engineering - automated chaos engineering testing framework.
 3. Logging toggles - increase and  decrease logging or add and remove log statements dynamically without deployment and restarting applications.
 4. Automatic documentation generation, as well as endpoint detection.
 5. Low code feature flags - low code alternative to traditional feature flag toggles.
 
-We would love to hear any feedback (positive and negative) or other use case ideas.  The future direction of facet will be directly impacted by YOUR feedback!
+We would love to hear your feedback!
 
 ## Feedback and Support
 
