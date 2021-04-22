@@ -52,9 +52,10 @@ apiKey:         {API_KEY}
 ## Usage Cases
 We are in the early stages of product development and can envision several use cases for this type of solution.   
 1. Endpoint toggles - disable or reroute endpoints on the fly for beta features or when application and performance issues arise.
-1. Chaos engineering - automated chaos engineering testing framework.
-1. Logging toggles - increase and  decrease logging or add and remove log statements dynamically without deployment and restarting applications.
-1. Low code feature flags - low code alternative to traditional feature flag toggles.
+2. Chaos engineering - automated chaos engineering testing framework.
+3. Logging toggles - increase and  decrease logging or add and remove log statements dynamically without deployment and restarting applications.
+4. Automatic documentation generation, as well as endpoint detection.
+5. Low code feature flags - low code alternative to traditional feature flag toggles.
 
 We would love to hear any feedback (positive and negative) or other use case ideas.  The future direction of facet will be directly impacted by YOUR feedback!
 
