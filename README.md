@@ -1,9 +1,11 @@
 # Overview
-<div align="center">
-    <img alt="Facet logo" width="40%" src="/images/facet_logo_combo.svg">
-<br/>
-<b>Toggle methods and endpoints instantly</b>
-</div>
+<a href='https://github.com/facet-tech/agent-java'>
+    <div align="center">
+        <img alt="Facet logo" width="40%" src="/images/facet_logo_combo.svg">
+    <br/>
+    <b>Toggle methods and endpoints instantly</b>
+    </div>
+</a>
 <br/>
 <br/>
 
