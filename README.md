@@ -18,12 +18,6 @@
 
 ## Download
 The facet agent jar can be downloaded from [maven central](https://search.maven.org/artifact/run.facet.agent.java/facet-agent).
-```
-<dependency>
-    <groupId>run.facet.agent.java</groupId>
-    <artifactId>facet-agent</artifactId>
-</dependency>
-```
 
 ## Install
 1. Configure your JVM to load the agent during your application's premain start-up by passing the `-javaagent:/full/path/to/facet.jar` command-line argument.
