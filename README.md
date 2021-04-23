@@ -131,6 +131,10 @@ Thank you for contributing to the project! Please read the [CONTRIBUTING.md](./C
 ## Compatibility
 Java:  JVM runtime 11 or higher is required, however, your source and target can be compiled to any java version.
 
+## Demo
+
+View the [demo here](https://facet.run/video/java.mp4).
+
 ## License
 
 [MIT](./LICENSE)
