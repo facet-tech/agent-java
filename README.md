@@ -20,27 +20,30 @@
 The facet agent jar can be downloaded from [maven central](https://search.maven.org/artifact/run.facet.agent.java/facet-agent).
 
 ## Install
-1. Configure your JVM to load the agent during your application's premain start-up by passing the `-javaagent:/full/path/to/facet.jar` command-line argument.
-```
-java -javaagent:/full/path/to/facet.jar -jar /full/path/to/application
-```
+1. Configure your JVM to load the agent during your application's premain start-up by passing the `-javaagent:/full/path/to/facet.jar` command-line argument. 
+ 
+Note: Make sure you pass the **absolute path** to the JAR.
 
-2. Create a `facet.yml` file located in the same directory as the `facet-agent.jar` from step 1.
+2. Create a `facet.yml` file located in the **same directory** as the `facet-agent.jar` from step 1.
 
 ```
+apiKey:         {API_KEY}
 workspaceId:    {WORKSPACE_ID}
 name:           {APPLICAITON_NAME}
 environment:    {ENVIRONMENT}
-apiKey:         {API_KEY}
 ```
 
-`workspaceId` is retrieved from the [dashboard](http://app.facet.run/)
+Grab your credentials (`workspaceId` and `apiKey`) from the Facet Dashboard at [https://app.facet.run](https://app.facet.run).
 
-`apiKey` is retrieved from the [dashboard](http://app.facet.run/)
+`workspaceId` The ID of the workspace.
 
-`name` is the name of your application
+`apiKey` Used for Facet API authentication.
 
-`environment` is the environment of your application deployment
+`name` The name of your application.
+
+`environment` (optional) The environment of your application deployment.
+
+After you start your application, you will be able to preview the project listed in the dashboard, under _"Applications"_.
 
 ## Troubleshooting
 1. If you encounter `javax.management.InstanceAlreadyExistsException` while running locally *disable* JMX integration in your IDE
@@ -88,14 +91,15 @@ Frameworks are a combination circuit breakers which detect annotations, interfac
 Currently, we support Spring Framework version 3.0.x and higher via the following spring annotations.
 
 ```
-ANNOTATION_CLASS                                        RETURN VALUE
-------------------------------------------------------  -----------------
-org.springframework.web.bind.annotation.RequestMapping  javax.servlet.http.HttpServletResponse.sendError(403,"Access Denied")
-org.springframework.web.bind.annotation.GetMapping      javax.servlet.http.HttpServletResponse.sendError(403,"Access Denied")
-org.springframework.web.bind.annotation.PostMapping     javax.servlet.http.HttpServletResponse.sendError(403,"Access Denied")
-org.springframework.web.bind.annotation.PutMapping      javax.servlet.http.HttpServletResponse.sendError(403,"Access Denied")
-org.springframework.web.bind.annotation.DeleteMapping   javax.servlet.http.HttpServletResponse.sendError(403,"Access Denied")
-org.springframework.web.bind.annotation.PatchMapping    javax.servlet.http.HttpServletResponse.sendError(403,"Access Denied")
+ANNOTATION_CLASS                                RETURN VALUE
+(org.springframework.web.bind.annotation)       (javax.servlet.http.HttpServletResponse)
+-----------------------------------------       -----------------
+RequestMapping                                  sendError(403,"Access Denied")
+GetMapping                                      sendError(403,"Access Denied")
+PostMapping                                     sendError(403,"Access Denied")
+PutMapping                                      sendError(403,"Access Denied")
+DeleteMapping                                   sendError(403,"Access Denied")
+PatchMapping                                    sendError(403,"Access Denied")
 ```
 Frameworks are data driven and will soon be configurable.
 
