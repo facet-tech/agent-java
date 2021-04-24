@@ -17,33 +17,35 @@
 > After integration, you can toggle methods and endpoints in realtime without modifying or restarting you application.
 
 ## Download
-The facet agent jar can be downloaded from [maven central](https://search.maven.org/artifact/run.facet.agent.java/facet-agent).
+Download the latest version of the Facet java-agent from the [maven central](https://search.maven.org/artifact/run.facet.agent.java/facet-agent). Click on the latest version, select "Download", and then select download "JAR".
 
 ## Install
-1. Configure your JVM to load the agent during your application's premain start-up by passing the `-javaagent:/full/path/to/facet.jar` command-line argument. 
- 
-Note: Make sure you pass the **absolute path** to the JAR.
+1. Configure your JVM to load the agent during your application's premain start-up by passing this command-line argument:
+
+```-javaagent:/facet-ageent-VERSION.jar```
+
+Replace `facet-ageent-VERSION.jar` with the **absolute path** of the JAR.
 
 2. Create a `facet.yml` file located in the **same directory** as the `facet-agent.jar` from step 1.
 
 ```
-apiKey:         {API_KEY}
-workspaceId:    {WORKSPACE_ID}
-name:           {APPLICAITON_NAME}
-environment:    {ENVIRONMENT}
+apiKey:         API_KEY
+workspaceId:    WORKSPACE_ID
+name:           APPLICATION_NAME
+environment:    ENVIRONMENT
 ```
 
-Grab your credentials (`workspaceId` and `apiKey`) from the Facet Dashboard at [https://app.facet.run](https://app.facet.run).
-
-`workspaceId` The ID of the workspace.
+Login and grab your credentials (`workspaceId` and `apiKey`) from the Facet Dashboard at [https://app.facet.run](https://app.facet.run).
 
 `apiKey` Used for Facet API authentication.
 
+`workspaceId` The ID of the workspace.
+
 `name` The name of your application.
 
-`environment` (optional) The environment of your application deployment.
+`environment` The environment of your application deployment. Use `local` for local development.
 
-After you start your application, you will be able to preview the project listed in the dashboard, under _"Applications"_.
+After you start your application, you will be able to preview the project listed in the [Facet Dashboard](https://app.facet.run), under _"Applications"_.
 
 ## Troubleshooting
 1. If you encounter `javax.management.InstanceAlreadyExistsException` while running locally *disable* JMX integration in your IDE
@@ -80,9 +82,7 @@ boolean             false
 void                void
 other               null
 ```
-Circuit breakers are data driven and will soon be configurable.
-
-Circuit breakers are stored in this [directory](db/configuration/circuit_breakers).
+Circuit breakers are data driven and will soon be configurable. They are stored in this [directory](db/configuration/circuit_breakers).
 
 ## Frameworks
 
@@ -101,6 +101,7 @@ PutMapping                                      sendError(403,"Access Denied")
 DeleteMapping                                   sendError(403,"Access Denied")
 PatchMapping                                    sendError(403,"Access Denied")
 ```
+
 Frameworks are data driven and will soon be configurable.
 
 Frameworks are stored in this [directory](db/configuration/frameworks).
@@ -113,16 +114,6 @@ See [block list.](db/configuration/block_list/default.json)
 Block lists are data driven and will soon be configurable.
 
 Block lists are stored in this [directory](https://github.com/facet-tech/agent-java/tree/main/db/configuration/circuit_breakers).
-
-## Building
-
-`./gradlew clean shadowJar`
-
-Run the above command from the project root directory to build the java agent:
-
-The Java agent requires JDK 11 or higher to build; your JAVA_HOME must be set to this JDK version.
-
-After building, Java agent artifacts are located in the directory: `build/generated/libs/`
 
 ## Contributing
 
