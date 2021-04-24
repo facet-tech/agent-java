@@ -22,9 +22,9 @@ Download the latest version of the Facet java-agent from the [maven central](htt
 ## Install
 1. Configure your JVM to load the agent during your application's premain start-up by passing this command-line argument:
 
-```-javaagent:/facet-ageent-VERSION.jar```
+```-javaagent:/facet-agent-VERSION.jar```
 
-Replace `facet-ageent-VERSION.jar` with the **absolute path** of the JAR.
+Replace `facet-ageent-VERSION.jar` with the **absolute path** of the Facet java-agent JAR.
 
 2. Create a `facet.yml` file located in the **same directory** as the `facet-agent.jar` from step 1.
 
@@ -43,7 +43,7 @@ Login and grab your credentials (`workspaceId` and `apiKey`) from the Facet Dash
 
 `name` The name of your application.
 
-`environment` The environment of your application deployment. Use `local` for local development.
+`environment` The environment of your application deployment. For instance, you may use `local` for your local environment.
 
 After you start your application, you will be able to preview the project listed in the [Facet Dashboard](https://app.facet.run), under _"Applications"_.
 
