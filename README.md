@@ -20,13 +20,10 @@
 Download the latest version of the Facet java-agent from the [maven central](https://repo1.maven.org/maven2/run/facet/agent/java/facet-agent/0.0.13/facet-agent-0.0.13.jar).
 
 ## Install
-1. Configure your JVM to load the agent during your application's premain start-up by passing this command-line argument:
+1. Move the Facet java-agent JAR in the root of the application folder, or in a subfolder in your project.
+2. Configure your JVM to load the agent during your application's premain start-up by passing this command-line argument: `-javaagent:/facet-agent-VERSION.jar`. Replace `facet-ageent-VERSION.jar` with the **absolute path** of the Facet java-agent JAR. For IDEA users, this usually can be found at "Edit Configuration" -> "VM options".
 
-```-javaagent:/facet-agent-VERSION.jar```
-
-Replace `facet-ageent-VERSION.jar` with the **absolute path** of the Facet java-agent JAR.
-
-2. Create a `facet.yml` file located in the **same directory** as the `facet-agent.jar` from step 1.
+3. Create a `facet.yml` file located in the **same directory** as the `facet-agent.jar` from step 1.
 
 ```
 apiKey:         API_KEY
@@ -35,7 +32,7 @@ name:           APPLICATION_NAME
 environment:    ENVIRONMENT
 ```
 
-Login and grab your credentials (`workspaceId` and `apiKey`) from the Facet Dashboard at [https://app.facet.run](https://app.facet.run).
+4. Login and grab your credentials (`workspaceId` and `apiKey`) from the Facet Dashboard at [https://app.facet.run](https://app.facet.run).
 
 `apiKey` Used for Facet API authentication.
 
