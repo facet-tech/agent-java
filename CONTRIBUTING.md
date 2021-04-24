@@ -13,3 +13,13 @@ We recommend using IntelliJ IDEA for development on this project. Configure as f
 1. Configure project SDK and target language level: select `File > Project Structure... > Project Settings > Project`.
 1. Set `Project SDK` to JDK 11
 1. Set `Project language level` to 11
+
+## Building
+
+`./gradlew clean shadowJar`
+
+Run the above command from the project root directory to build the java agent:
+
+The Java agent requires JDK 11 or higher to build; your JAVA_HOME must be set to this JDK version.
+
+After building, Java agent artifacts are located in the directory: `build/generated/libs/`
