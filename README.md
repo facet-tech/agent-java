@@ -61,7 +61,9 @@ We would love to hear your feedback!
 
 Open an [issue](https://github.com/facet-tech/agent-java/issues) or send an email at `engineering@facet.run`.
 
-## Circuit Breakers
+## Technical Details
+
+### Circuit Breakers
 
 Method toggles are achieved by stopping method execution and transferring control back to the caller via injected return statements called circuit breakers.  Below are the default return values for method return types.
 
@@ -81,7 +83,7 @@ other               null
 ```
 Circuit breakers are data driven and will soon be configurable. They are stored in this [directory](db/configuration/circuit_breakers).
 
-## Frameworks
+### Frameworks
 
 Frameworks are a combination circuit breakers which detect annotations, interfaces, and inheritance to customize the return value (response) creating support for HTTP requests and endpoints.  If a framework is detected, the following return values will be used instead of the default circuit breaker mapping.
 
@@ -103,7 +105,8 @@ Frameworks are data driven and will soon be configurable.
 
 Frameworks are stored in this [directory](db/configuration/frameworks).
 
-## Block List
+### Block List
+
 A list of packages and classes not processed preventing method and endpoint toggle overload.
 
 See [block list.](db/configuration/block_list/default.json)
@@ -111,6 +114,10 @@ See [block list.](db/configuration/block_list/default.json)
 Block lists are data driven and will soon be configurable.
 
 Block lists are stored in this [directory](https://github.com/facet-tech/agent-java/tree/main/db/configuration/circuit_breakers).
+
+## Roadmap
+
+The future plans and high priority features and enhancements can be found in the [GitHub project board](https://github.com/orgs/facet-tech/projects/3).
 
 ## Contributing
 
