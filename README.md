@@ -17,7 +17,7 @@
 > After integration, you can toggle methods and endpoints in realtime without modifying or restarting you application.
 
 ## Download
-Download the latest version of the Facet java-agent from the [maven central](https://search.maven.org/artifact/run.facet.agent.java/facet-agent). Click on the latest version, select "Download", and then select download "JAR".
+Download the latest version of the Facet java-agent from the [maven central](https://repo1.maven.org/maven2/run/facet/agent/java/facet-agent/0.0.13/facet-agent-0.0.13.jar).
 
 ## Install
 1. Configure your JVM to load the agent during your application's premain start-up by passing this command-line argument:
