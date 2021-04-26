@@ -32,17 +32,14 @@ name:           APPLICATION_NAME
 environment:    ENVIRONMENT
 ```
 
-4. Login and grab your credentials (`workspaceId` and `apiKey`) from the Facet Dashboard at [https://app.facet.run](https://app.facet.run).
+`apiKey` Used for Facet API authentication.  
+`workspaceId` The ID of the workspace.  
+`name` The name of your application.  
+`environment` The environment of your application deployment. For instance, you may use `local` for your local environment.  
 
-`apiKey` Used for Facet API authentication.
+*<p align="center">`workspaceId` and `apiKey` are retrieved from the [Facet Dashboard](https://app.facet.run) </p>*
 
-`workspaceId` The ID of the workspace.
-
-`name` The name of your application.
-
-`environment` The environment of your application deployment. For instance, you may use `local` for your local environment.
-
-After you start your application, you will be able to preview the project listed in the [Facet Dashboard](https://app.facet.run), under _"Applications"_.
+4. Start your application and toggle endpoints and methods via the [Facet Dashboard](https://app.facet.run) -> *Applications*.
 
 ## Troubleshooting
 1. If you encounter `javax.management.InstanceAlreadyExistsException` while running locally *disable* JMX integration in your IDE
