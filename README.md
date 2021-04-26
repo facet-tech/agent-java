@@ -41,7 +41,8 @@ In order to retrieve `workspaceId` and `apiKey`, you need to create an account i
 4. Start your application and toggle endpoints and methods via the [Facet Dashboard](https://app.facet.run) -> *Applications*.
 
 ## Troubleshooting
-1. If you encounter `javax.management.InstanceAlreadyExistsException` while running locally *disable* JMX integration in your IDE
+1. In case you've encountered some warnings/error, you can troubleshoot by opening the `facet.log` file, which is generated in the _same directory_ with the facet.yml, once you start the application. Potential warnings and errors are logged in that file.
+2.  If you encounter `javax.management.InstanceAlreadyExistsException` while running locally, *disable* JMX integration in your IDE
 
 ## Usage Cases
 
