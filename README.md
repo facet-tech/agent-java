@@ -31,7 +31,7 @@ workspaceId:    WORKSPACE_ID
 name:           APPLICATION_NAME
 environment:    ENVIRONMENT
 ```
-`workspaceId` and `apiKey` are retrieved from the [Facet Dashboard](https://app.facet.run)
+In order to retrieve `workspaceId` and `apiKey`, you need to create an account in the [Facet Dashboard](https://app.facet.run)
 
 `apiKey` Used for Facet API authentication.  
 `workspaceId` The ID of the workspace.  
