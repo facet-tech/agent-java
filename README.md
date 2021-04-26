@@ -12,7 +12,7 @@
 [![Github](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)](https://github.com/facet-tech/agent-java/actions/workflows/main.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
 
-> The Facet Java Agent uses bytecode instrumentation to dynamically enable and disable methods at runtime within your application.
+> The Facet Java Agent uses the Bytecode Instrumentation API to dynamically enable and disable methods at runtime within your application.
 > This is achieved by transferring control back to the caller of the method via injected return statements.
 > After integration, you can toggle methods and endpoints in realtime without modifying or restarting you application.
 
