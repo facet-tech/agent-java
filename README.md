@@ -31,14 +31,12 @@ workspaceId:    WORKSPACE_ID
 name:           APPLICATION_NAME
 environment:    ENVIRONMENT
 ```
-*<p align="center">`workspaceId` and `apiKey` are retrieved from the [Facet Dashboard](https://app.facet.run) </p>*
+`workspaceId` and `apiKey` are retrieved from the [Facet Dashboard](https://app.facet.run)
 
 `apiKey` Used for Facet API authentication.  
 `workspaceId` The ID of the workspace.  
 `name` The name of your application.  
-`environment` The environment of your application deployment. For instance, you may use `local` for your local environment.  
-
-
+`environment` The environment of your application deployment. For instance, you may use `local` for your local environment.
 
 4. Start your application and toggle endpoints and methods via the [Facet Dashboard](https://app.facet.run) -> *Applications*.
 
